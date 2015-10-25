@@ -11,8 +11,7 @@
         /// Default constructor.
         /// Base constructor requires a name and assembly to locate web service classes. 
         /// </summary>
-        public AppHost()
-            : base("ConsoleDemo", typeof(DemoService).Assembly)
+        public AppHost() : base("ConsoleDemo", typeof(DemoService).Assembly)
         {
         }
 
@@ -24,8 +23,6 @@
         public override void Configure(Container container)
         {
             //Config examples
-            //this.Plugins.Add(new PostmanFeature());
-            //this.Plugins.Add(new CorsFeature());
             Plugins.Add(new SeqRequestLogsFeature("http://localhost:5341"));
         }
     }
