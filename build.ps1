@@ -2,33 +2,21 @@ param(
     [String] $majorMinor = "0.0",  # 2.0
     [String] $patch = "0",         # $env:APPVEYOR_BUILD_VERSION
     [String] $customLogger = "",   # C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll
-    [Switch] $notouch,
-    [String] $sln                  # e.g servicestack-seq-requestlogsfeature
+    [Switch] $notouch
 )
 
 function Set-AssemblyVersions($informational, $assembly)
 {
-    (Get-Content assets/GlobalAssemblyInfo.cs) |
-        ForEach-Object { $_ -replace """0.1.0.0""", """$assembly""" } |
-        ForEach-Object { $_ -replace """0.1.0""", """$informational""" } |
-        ForEach-Object { $_ -replace """0.1.0.0""", """$($informational).0""" } |
-        Set-Content assets/GlobalAssemblyInfo.cs
+    (Get-Content assets/CommonAssemblyInfo.cs) |
+        ForEach-Object { $_ -replace """1.0.0.0""", """$assembly""" } |
+        ForEach-Object { $_ -replace """1.0.0""", """$informational""" } |
+        ForEach-Object { $_ -replace """1.1.1.1""", """$($informational).0""" } |
+        Set-Content assets/CommonAssemblyInfo.cs
 }
 
 function Install-NuGetPackages($solution)
 {
-    nuget restore $solution
-}
-
-function Install-Nuget() {
-  if(-not(Test-Path alias:nuget)){
-    $sourceNugetExe = "http://nuget.org/nuget.exe"
-    $targetNugetExe = "assets/nuget.exe"
-    if(-not (Test-Path($targetNugetExe))) {
-      Invoke-WebRequest $sourceNugetExe -OutFile $targetNugetExe
-    }
-    Set-Alias nuget $targetNugetExe -Scope Global -Verbose
-  }
+    nuget restore "$solution"
 }
 
 function Invoke-MSBuild($solution, $customLogger)
@@ -43,29 +31,20 @@ function Invoke-MSBuild($solution, $customLogger)
     }
 }
 
-function Invoke-NuGetPackProj($csproj)
-{
-    nuget pack -Prop Configuration=Release -Symbols $csproj
-}
-
 function Invoke-NuGetPackSpec($nuspec, $version)
 {
-    nuget pack $nuspec -Version $version -OutputDirectory ..\..\
+    nuget pack $nuspec -Version $version
 }
 
-function Invoke-NuGetPack($version)
+function Invoke-Build($majorMinor, $patch, $customLogger, $notouch)
 {
-    ls src/**/*.csproj |
-        Where-Object { -not ($_.Name -like "*net40*") } |
-        ForEach-Object { Invoke-NuGetPackProj $_ }
-}
+    $project = "ServiceStack.Seq.RequestLogsFeature"
 
-function Invoke-Build($majorMinor, $patch, $customLogger, $notouch, $sln)
-{
+    $solution = "$project.sln"
+    $solution4 = "$project-net40.sln"
     $package="$majorMinor.$patch"
-    $slnfile = "$sln.sln"
 
-    Write-Output "solution: $sln version: $package"
+    Write-Output "Building $project $package"
 
     if (-not $notouch)
     {
@@ -74,25 +53,14 @@ function Invoke-Build($majorMinor, $patch, $customLogger, $notouch, $sln)
         Write-Output "Assembly version will be set to $assembly"
         Set-AssemblyVersions $package $assembly
     }
-    
-    Install-Nuget
-    
-    Install-NuGetPackages $slnfile
-    
-    Invoke-MSBuild $slnfile $customLogger
 
-    Invoke-NuGetPack $package
+    Install-NuGetPackages $solution
+    
+    Invoke-MSBuild $solution4 $customLogger
+    Invoke-MSBuild $solution $customLogger
+
+    Invoke-NuGetPackSpec "src/**/*.nuspec" $package
 }
 
 $ErrorActionPreference = "Stop"
-
-if (-not $sln)
-{
-    $slnfull = ls *.sln |
-        Where-Object { -not ($_.Name -like "*net40*") } |
-        Select -first 1
-
-    $sln = $slnfull.BaseName
-}
-
-Invoke-Build $majorMinor $patch $customLogger $notouch $sln
+Invoke-Build $majorMinor $patch $customLogger $notouch
