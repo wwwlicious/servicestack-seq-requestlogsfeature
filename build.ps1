@@ -10,7 +10,7 @@ function Set-AssemblyVersions($informational, $assembly)
 {
     (Get-Content assets/GlobalAssemblyInfo.cs) |
         ForEach-Object { $_ -replace """0.1.0.0""", """$assembly""" } |
-        ForEach-Object { $_ -replace """0.1.0.0""", """$informational""" } |
+        ForEach-Object { $_ -replace """0.1.0""", """$informational""" } |
         ForEach-Object { $_ -replace """0.1.0.0""", """$($informational).0""" } |
         Set-Content assets/GlobalAssemblyInfo.cs
 }
