@@ -41,7 +41,6 @@ function Invoke-Build($majorMinor, $patch, $customLogger, $notouch)
     $project = "ServiceStack.Seq.RequestLogsFeature"
 
     $solution = "$project.sln"
-    $solution4 = "$project-net40.sln"
     $package="$majorMinor.$patch"
 
     Write-Output "Building $project $package"
@@ -56,7 +55,6 @@ function Invoke-Build($majorMinor, $patch, $customLogger, $notouch)
 
     Install-NuGetPackages $solution
     
-    Invoke-MSBuild $solution4 $customLogger
     Invoke-MSBuild $solution $customLogger
 
     Invoke-NuGetPackSpec "src/**/*.nuspec" $package
