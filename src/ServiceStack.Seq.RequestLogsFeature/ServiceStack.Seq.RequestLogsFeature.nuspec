@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>ServiceStack.Seq.RequestLogsFeature</id>
+    <version>$version$</version>
+    <authors>Scott Mackay (@wwwlicious)</authors>
+    <description>Servicestack plugin that logs requests to seq.</description>
+    <language>en-US</language>
+    <projectUrl>http://serilog.net</projectUrl>
+    <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+    <iconUrl></iconUrl>
+    <tags>seq logging servicestack plugin requestlogs</tags>
+    <dependencies>
+      <dependency id="ServiceStack" version="[3.9.71,4)" />
+      <dependency id="ServiceStack.Common" version="[3.9.71,4)" />
+      <dependency id="ServiceStack.Text" version="[3.9.71,4)" />
+    </dependencies>
+  </metadata>
+</package>

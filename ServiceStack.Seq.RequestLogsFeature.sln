@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceStack.Seq.RequestLogsFeature", "src\ServiceStack.Seq.RequestLogsFeature\ServiceStack.Seq.RequestLogsFeature.csproj", "{714F2E28-AB45-4CE7-A576-C6E5260785A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleDemo", "test\ConsoleDemo\ConsoleDemo.csproj", "{CF36BF58-D08F-425A-9A6A-D0A86C506110}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".docs", ".docs", "{BCF60C71-7F5A-429C-A322-E00AAEC59C1A}"
+	ProjectSection(SolutionItems) = preProject
+		LICENCE.md = LICENCE.md
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{714F2E28-AB45-4CE7-A576-C6E5260785A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{714F2E28-AB45-4CE7-A576-C6E5260785A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{714F2E28-AB45-4CE7-A576-C6E5260785A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{714F2E28-AB45-4CE7-A576-C6E5260785A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF36BF58-D08F-425A-9A6A-D0A86C506110}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF36BF58-D08F-425A-9A6A-D0A86C506110}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF36BF58-D08F-425A-9A6A-D0A86C506110}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF36BF58-D08F-425A-9A6A-D0A86C506110}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
