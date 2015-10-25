@@ -28,4 +28,4 @@ public override void Configure(Container container)
 }
 ```
 
-![Seq Request Logs](assets/Seq.png)]
+![Seq Request Logs](assets/Seq.png)
