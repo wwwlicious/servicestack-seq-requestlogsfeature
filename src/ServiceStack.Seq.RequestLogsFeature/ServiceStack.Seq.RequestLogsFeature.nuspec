@@ -4,9 +4,9 @@
     <id>ServiceStack.Seq.RequestLogsFeature</id>
     <version>$version$</version>
     <authors>Scott Mackay (@wwwlicious)</authors>
-    <description>Servicestack plugin that logs requests to seq.</description>
+    <description>Servicestack plugin based on RequestLogsFeature that logs to Seq.</description>
     <language>en-US</language>
-    <projectUrl>http://serilog.net</projectUrl>
+    <projectUrl>https://github.com/wwwlicious/servicestack-seq-requestlogsfeature</projectUrl>
     <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
     <iconUrl>https://servicestack.net/img/logo-32.png</iconUrl>
     <tags>seq logging servicestack plugin requestlogs</tags>
