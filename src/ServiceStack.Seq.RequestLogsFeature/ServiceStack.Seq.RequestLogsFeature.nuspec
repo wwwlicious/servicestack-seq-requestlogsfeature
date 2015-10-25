@@ -8,7 +8,7 @@
     <language>en-US</language>
     <projectUrl>http://serilog.net</projectUrl>
     <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
-    <iconUrl></iconUrl>
+    <iconUrl>https://servicestack.net/img/logo-32.png</iconUrl>
     <tags>seq logging servicestack plugin requestlogs</tags>
     <dependencies>
       <dependency id="ServiceStack" version="[3.9.71,4)" />
