@@ -7,11 +7,11 @@ param(
 
 function Set-AssemblyVersions($informational, $assembly)
 {
-    (Get-Content assets/CommonAssemblyInfo.cs) |
+    (Get-Content assets/GlobalAssemblyInfo.cs) |
         ForEach-Object { $_ -replace """1.0.0.0""", """$assembly""" } |
         ForEach-Object { $_ -replace """1.0.0""", """$informational""" } |
         ForEach-Object { $_ -replace """1.1.1.1""", """$($informational).0""" } |
-        Set-Content assets/CommonAssemblyInfo.cs
+        Set-Content assets/GlobalAssemblyInfo.cs
 }
 
 function Install-NuGetPackages($solution)
