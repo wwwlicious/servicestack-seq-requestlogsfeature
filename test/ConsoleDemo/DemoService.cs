@@ -4,9 +4,7 @@ namespace ConsoleDemo
 {
     using System;
 
-    using ServiceStack.Common;
-    using ServiceStack.Common.Web;
-    using ServiceStack.ServiceHost;
+    using ServiceStack;
 
     public class DemoService : IService, IAny<Hello>
     {

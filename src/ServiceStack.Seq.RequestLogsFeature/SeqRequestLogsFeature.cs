@@ -2,10 +2,8 @@
 {
     using System;
 
-    using ServiceStack.ServiceHost;
-    using ServiceStack.ServiceInterface.Admin;
-    using ServiceStack.ServiceInterface.Auth;
-    using ServiceStack.WebHost.Endpoints;
+    using ServiceStack.Admin;
+    using ServiceStack.Web;
 
     public class SeqRequestLogsFeature : IPlugin
     {
@@ -19,7 +17,7 @@
             this.EnableRequestBodyTracking = false;
             this.ExcludeRequestDtoTypes = new[] { typeof(RequestLogs) };
             this.HideRequestBodyForRequestDtoTypes = new[] {
-                typeof(Auth), typeof(Registration)
+                typeof(Authenticate), typeof(Register)
             };
         }
 
@@ -83,6 +81,9 @@
                     httpReq.UseBufferedStream = EnableRequestBodyTracking;
                 });
             }
+
+            appHost.GetPlugin<MetadataFeature>()
+                .AddDebugLink(SeqUrl, " Seq Request Logs");
         }
     }
 }

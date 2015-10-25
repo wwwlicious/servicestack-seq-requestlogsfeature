@@ -2,10 +2,10 @@
 {
     using Funq;
 
+    using ServiceStack;
     using ServiceStack.Seq.RequestLogsFeature;
-    using ServiceStack.WebHost.Endpoints;
 
-    public class AppHost : AppHostHttpListenerBase
+    public class AppHost : AppSelfHostBase
     {
         /// <summary>
         /// Default constructor.
@@ -23,7 +23,8 @@
         public override void Configure(Container container)
         {
             //Config examples
-            Plugins.Add(new SeqRequestLogsFeature("http://localhost:5341"));
+            string seqApiKey = null; // optional, enter a seq api key
+            Plugins.Add(new SeqRequestLogsFeature("http://localhost:5341", seqApiKey));
         }
     }
 }

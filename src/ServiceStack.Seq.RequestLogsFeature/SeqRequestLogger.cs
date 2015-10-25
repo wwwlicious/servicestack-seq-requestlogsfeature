@@ -5,15 +5,8 @@
     using System.Linq;
     using System.Net;
     using System.Threading;
-    using System.Threading.Tasks;
 
-    using ServiceStack.Common;
-    using ServiceStack.Common.Web;
-    using ServiceStack.Text;
-    using ServiceStack.ServiceHost;
-    using ServiceStack.ServiceInterface;
-    using ServiceStack.ServiceInterface.ServiceModel;
-    using ServiceStack.ServiceModel;
+    using ServiceStack.Web;
 
     public class SeqRequestLogger : IRequestLogger
     {
@@ -45,52 +38,79 @@
 
         public Type[] ExcludeRequestDtoTypes { get; set; }
 
-        public void Log(IRequestContext requestContext, object requestDto, object response, TimeSpan elapsed)
+        public void Log(IRequest request, object requestDto, object response, TimeSpan requestDuration)
         {
-            var type = requestDto?.GetType();
-            if (ExcludeRequestDtoTypes != null && type != null && ExcludeRequestDtoTypes.Contains(type))
+            var requestType = requestDto?.GetType();
+
+            if (ExcludeRequestType(requestType))
                 return;
-            var requestLogEntry = new SeqRequestLogEntry {
-                                                             Timestamp = DateTime.UtcNow.ToString("o")
-                                                         };
-            requestLogEntry.Properties.Add("RequestDuration", elapsed.ToString());
+
+            var entry = CreateEntry(request, requestDto, response, requestDuration, requestType);
+
+            // TODO inefficient as uses 1 event : 1 http post to seq
+            // replace with something to buffer/queue and  
+            // batch entries for posting
+            "{0}/api/events/raw".Fmt(seqUrl)
+                .PostJsonToUrlAsync(
+                    new SeqLogRequest(entry),
+                    webRequest => webRequest.Headers.Add("X-Seq-ApiKey", apiKey));
+        }
+
+        protected SeqRequestLogEntry CreateEntry(
+            IRequest request,
+            object requestDto,
+            object response,
+            TimeSpan requestDuration,
+            Type requestType)
+        {
+            var requestLogEntry = new SeqRequestLogEntry
+            {
+                Timestamp = DateTime.UtcNow.ToString("o")
+            };
+            requestLogEntry.Properties.Add("RequestDuration", requestDuration.ToString());
             requestLogEntry.Properties.Add("RequestCount", Interlocked.Increment(ref requestId).ToString());
 
-            var httpReq = requestContext?.Get<IHttpRequest>();
-            if (httpReq != null)
+            if (request != null)
             {
-                requestLogEntry.MessageTemplate = "SeqRequestLogsFeature request from {0}".Fmt(httpReq.AbsoluteUri.Split('?')[0]);
-                requestLogEntry.Properties.Add("HttpMethod", httpReq.HttpMethod);
-                requestLogEntry.Properties.Add("AbsoluteUri", httpReq.AbsoluteUri);
-                requestLogEntry.Properties.Add("PathInfo", httpReq.PathInfo);
-                requestLogEntry.Properties.Add("IpAddress", requestContext.IpAddress);
-                requestLogEntry.Properties.Add("ForwardedFor", httpReq.Headers["X-Forwarded-For"]);
-                requestLogEntry.Properties.Add("Referer", httpReq.Headers["Referer"]);
-                requestLogEntry.Properties.Add("Headers", httpReq.Headers.ToDictionary());
-                requestLogEntry.Properties.Add("UserAuthId", httpReq.GetItemOrCookie("X-UAId"));
-                requestLogEntry.Properties.Add("SessionId", httpReq.GetSessionId());
-                requestLogEntry.Properties.Add("Items", httpReq.Items);
-                requestLogEntry.Properties.Add("Session", EnableSessionTracking ? httpReq.GetSession(false) : null);
+                requestLogEntry.MessageTemplate = "SeqRequestLogsFeature request from {0}".Fmt(request.AbsoluteUri.Split('?')[0]);
+                requestLogEntry.Properties.Add("HttpMethod", request.Verb);
+                requestLogEntry.Properties.Add("AbsoluteUri", request.AbsoluteUri);
+                requestLogEntry.Properties.Add("PathInfo", request.PathInfo);
+                requestLogEntry.Properties.Add("IpAddress", request.UserHostAddress);
+                requestLogEntry.Properties.Add("ForwardedFor", request.Headers[HttpHeaders.XForwardedFor]);
+                requestLogEntry.Properties.Add("Referer", request.Headers[HttpHeaders.Referer]);
+                requestLogEntry.Properties.Add("Headers", request.Headers.ToDictionary());
+                requestLogEntry.Properties.Add("UserAuthId", request.GetItemOrCookie(HttpHeaders.XUserAuthId));
+                requestLogEntry.Properties.Add("SessionId", request.GetSessionId());
+                requestLogEntry.Properties.Add("Items", request.Items);
+                requestLogEntry.Properties.Add("Session", EnableSessionTracking ? request.GetSession(false) : null);
             }
-            if (HideRequestBodyForRequestDtoTypes != null && type != null && !HideRequestBodyForRequestDtoTypes.Contains(type))
+
+            if (HideRequestBodyForRequestDtoTypes != null
+                && requestType != null
+                && !HideRequestBodyForRequestDtoTypes.Contains(requestType))
             {
                 requestLogEntry.Properties.Add("RequestDto", requestDto);
-                if (httpReq != null)
+                if (request != null)
                 {
-                    requestLogEntry.Properties.Add("FormData", httpReq.FormData.ToDictionary());
-                    if (this.EnableRequestBodyTracking)
-                        requestLogEntry.Properties.Add("RequestBody", httpReq.GetRawBody());
+                    requestLogEntry.Properties.Add("FormData", request.FormData.ToDictionary());
+
+                    if (EnableRequestBodyTracking)
+                    {
+                        requestLogEntry.Properties.Add("RequestBody", request.GetRawBody());
+                    }
                 }
             }
+
             if (!response.IsErrorResponse())
             {
                 if (EnableResponseTracking)
                 {
                     requestLogEntry.Properties.Add("ResponseDto", response);
-                    requestLogEntry.Properties.Add("ResponseStatus", response.ToResponseStatus());
                     var httpResponse = response as IHttpResult;
                     if (httpResponse != null)
                     {
+                        requestLogEntry.Properties.Add("ResponseStatus", httpResponse.Response?.GetResponseStatus());
                         requestLogEntry.Properties.Add("StatusCode", httpResponse.Status.ToString());
                         requestLogEntry.Properties.Add("StatusDescription", httpResponse.StatusDescription);
                     }
@@ -113,17 +133,14 @@
                 var ex = response as Exception;
                 requestLogEntry.Properties.Add("Error", ex);
             }
+            return requestLogEntry;
+        }
 
-            // TODO inefficient as uses 1 event : 1 http post to seq
-            // replace with something to buffer/queue and  
-            // batch entries for posting
-            Task.Run(
-                () =>
-                {
-                    "{0}/api/events/raw".Fmt(seqUrl).PostJsonToUrl(
-                        new SeqLogRequest(requestLogEntry),
-                        request => request.Headers.Add("X-Seq-ApiKey", apiKey));
-                });
+        protected bool ExcludeRequestType(Type requestType)
+        {
+            return ExcludeRequestDtoTypes != null
+                   && requestType != null
+                   && ExcludeRequestDtoTypes.Contains(requestType);
         }
 
         public List<RequestLogEntry> GetLatestLogs(int? take)
