@@ -1,4 +1,4 @@
-# ServiceStack.SeqRequestLogsFeature
+# ServiceStack.Seq.RequestLogsFeature
 
 [![Build status](https://ci.appveyor.com/api/projects/status/89pfhb02b0psi80e/branch/v3?svg=true)](https://ci.appveyor.com/project/wwwlicious/servicestack-seq-requestlogsfeature/branch/v3)
 
@@ -14,7 +14,7 @@ The package is available from nuget.org
 
 # Requirements
 
-You must have an instance of seq server to post to. You can download and install a copy of Seq [here](http://getseq.com).
+You must have an instance of seq server to post to. You can download and install a copy of Seq [here](http://getseq.net).
 
 # Usage
 
