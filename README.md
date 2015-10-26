@@ -2,7 +2,7 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/89pfhb02b0psi80e/branch/v3?svg=true)](https://ci.appveyor.com/project/wwwlicious/servicestack-seq-requestlogsfeature/branch/v3)
 
-A ServiceStack plugin that logs requests to [Seq](http://getseq.net)
+A ServiceStack plugin that logs requests to [Seq](http://getseq.net). For more details view the [blog post](http://wwwlicious.com/2015/10/25/logging-servicestack-requests-with-seq/)
 
 *NB. This version is compatible with ServiceStack v3.x. For v4 compatibility, use the master branch*
 
