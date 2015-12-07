@@ -7,6 +7,7 @@
     using System.Threading;
 
     using ServiceStack.Web;
+    using ServiceStack.Text;
 
     public class SeqRequestLogger : IRequestLogger
     {
@@ -50,10 +51,13 @@
             // TODO inefficient as uses 1 event : 1 http post to seq
             // replace with something to buffer/queue and  
             // batch entries for posting
-            "{0}/api/events/raw".Fmt(seqUrl)
-                .PostJsonToUrlAsync(
-                    new SeqLogRequest(entry),
-                    webRequest => webRequest.Headers.Add("X-Seq-ApiKey", apiKey));
+            using (var scope = JsConfig.With(emitCamelCaseNames: false))
+            {
+                "{0}/api/events/raw".Fmt(seqUrl)
+                    .PostJsonToUrlAsync(
+                        new SeqLogRequest(entry),
+                        webRequest => webRequest.Headers.Add("X-Seq-ApiKey", apiKey));
+            }
         }
 
         protected SeqRequestLogEntry CreateEntry(
