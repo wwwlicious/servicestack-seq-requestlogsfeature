@@ -89,6 +89,7 @@
             {
                 Timestamp = DateTime.UtcNow.ToString("o")
             };
+            requestLogEntry.Properties.Add("IsRequestLog", "True"); //Used for filtering requests easily
             requestLogEntry.Properties.Add("RequestDuration", requestDuration.ToString());
             requestLogEntry.Properties.Add("RequestCount", Interlocked.Increment(ref requestId).ToString());
 
