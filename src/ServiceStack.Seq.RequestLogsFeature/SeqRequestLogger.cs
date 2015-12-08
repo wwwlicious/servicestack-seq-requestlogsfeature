@@ -17,12 +17,19 @@
 
         private readonly string apiKey;
 
-        public SeqRequestLogger(string seqUrl, string apiKey = null)
+        public SeqRequestLogger(string seqUrl, string apiKey = null, bool enabled = true, bool enableErrorTracking = true, bool enabledRequestBodyTracking = false, bool enableSessionTracking = false, bool enableResponseTracking = false, Action<IRequest, object, object, TimeSpan> rawLogEvent = null)
         {
             seqUrl.ThrowIfNullOrEmpty(nameof(seqUrl));
             this.seqUrl = seqUrl;
             this.apiKey = apiKey;
+            Enabled = enabled;
+            EnableErrorTracking = enableErrorTracking;
+            EnableRequestBodyTracking = enabledRequestBodyTracking;
+            EnableResponseTracking = enableResponseTracking;
+            EnableSessionTracking = enableSessionTracking;
+            RawLogEvent = rawLogEvent;
         }
+        public bool Enabled { get; set; }
 
         public bool EnableSessionTracking { get; set; }
 
@@ -39,8 +46,19 @@
 
         public Type[] ExcludeRequestDtoTypes { get; set; }
 
+        /// <summary>
+        /// Tap into log events stream, still called even if disabled from Seq Logging 
+        /// </summary>
+        public Action<IRequest, object, object, TimeSpan> RawLogEvent;
+
         public void Log(IRequest request, object requestDto, object response, TimeSpan requestDuration)
         {
+            if (RawLogEvent != null)
+                RawLogEvent(request, requestDto, response, requestDuration);
+
+            if (!Enabled)
+                return;
+
             var requestType = requestDto?.GetType();
 
             if (ExcludeRequestType(requestType))

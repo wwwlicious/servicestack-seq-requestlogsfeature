@@ -8,19 +8,21 @@
     public class SeqRequestLogsFeature : IPlugin
     {
         private readonly string _apiKey;
-
-        public SeqRequestLogsFeature(string seqUrl, string apiKey = null)
+        private readonly bool _initialEnabled;
+        public SeqRequestLogsFeature(string seqUrl, string apiKey = null, bool enabled = true, bool enableErrorTracking = true, bool enabledRequestBodyTracking = false, bool enableSessionTracking = false, bool enableResponseTracking = false)
         {
             this.SeqUrl = seqUrl;
             _apiKey = apiKey;
-            this.EnableErrorTracking = true;
-            this.EnableRequestBodyTracking = false;
+            _initialEnabled = enabled;
+            this.EnableErrorTracking = enableErrorTracking;
+            this.EnableRequestBodyTracking = enabledRequestBodyTracking;
+            this.EnableSessionTracking = enableSessionTracking;
+            this.EnableResponseTracking = enableResponseTracking;
             this.ExcludeRequestDtoTypes = new[] { typeof(RequestLogs) };
             this.HideRequestBodyForRequestDtoTypes = new[] {
                 typeof(Authenticate), typeof(Register)
             };
         }
-
         /// <summary>
         /// Seq server url
         /// </summary>
@@ -64,7 +66,7 @@
 
         public void Register(IAppHost appHost)
         {
-            var requestLogger = RequestLogger ?? new SeqRequestLogger(SeqUrl, _apiKey);
+            var requestLogger = RequestLogger ?? new SeqRequestLogger(SeqUrl, _apiKey, _initialEnabled);
             requestLogger.EnableSessionTracking = EnableSessionTracking;
             requestLogger.EnableResponseTracking = EnableResponseTracking;
             requestLogger.EnableRequestBodyTracking = EnableRequestBodyTracking;
@@ -73,7 +75,7 @@
             requestLogger.HideRequestBodyForRequestDtoTypes = HideRequestBodyForRequestDtoTypes;
 
             appHost.Register(requestLogger);
-
+            appHost.RegisterService(typeof(SeqRequestLogConfigService));
             if (EnableRequestBodyTracking)
             {
                 appHost.PreRequestFilters.Insert(0, (httpReq, httpRes) =>
@@ -83,7 +85,8 @@
             }
 
             appHost.GetPlugin<MetadataFeature>()
-                .AddDebugLink(SeqUrl, " Seq Request Logs");
+                .AddDebugLink(SeqUrl, "Seq Request Logs")
+                .AddPluginLink("/SeqRequestLogConfig", "Seq IRequestLogger Configuration");
         }
     }
 }

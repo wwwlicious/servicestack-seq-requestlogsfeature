@@ -24,7 +24,7 @@
         {
             //Config examples
             string seqApiKey = null; // optional, enter a seq api key
-            Plugins.Add(new SeqRequestLogsFeature("http://localhost:5341", seqApiKey));
+            Plugins.Add(new SeqRequestLogsFeature("http://localhost:5341", seqApiKey,true,true,true,true));
         }
     }
 }
