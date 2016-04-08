@@ -31,18 +31,19 @@ public override void Configure(Container container)
     Plugins.Add(
         new SeqRequestLogsFeature(
             new SeqRequestLogsSettings("http://localhost:5341") // required seq server url:port
-                .ApiKey("seqApiKey")            // optional api key for seq
+                // everything else is optional
+                .ApiKey("seqApiKey")            // api key for seq
                 .Enabled()                      // default true
                 .EnableErrorTracking()          // default true
                 .EnableSessionTracking()        // default false
                 .EnableRequestBodyTracking()    // default false
                 .EnableResponseTracking()       // default false
-                .ClearExcludeRequestDtoTypes()  // remove default exclusions (RequestLog)
-                .ClearHideRequestBodyForRequestDtoTypes() // remove default request body exclusions (Auth, Registration)
                 .ExcludeRequestDtoTypes(typeof(SeqRequestLogConfig)) // add your own type exclusions
                 .HideRequestBodyForRequestDtoTypes(typeof(SeqRequestLogConfig)) // add your own exclusions for bodyrequest logging
                 .RequiredRoles("admin", "ops") // restrict the runtime configuration to specific roles
                 .UseCustomLogger(new CustomLogger()) // swap out the seq logger for your own implementation
+                .ClearExcludeRequestDtoTypes()  // remove default exclusions (RequestLog)
+                .ClearHideRequestBodyForRequestDtoTypes() // remove default request body exclusions (Auth, Registration)
                 .AddLogEvent(
                     (request, dto, response, duration) =>
                         {
