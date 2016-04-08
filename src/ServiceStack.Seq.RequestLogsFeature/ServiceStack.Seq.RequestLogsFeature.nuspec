@@ -7,13 +7,11 @@
     <description>Servicestack plugin based on RequestLogsFeature that logs to Seq.</description>
     <language>en-US</language>
     <projectUrl>https://github.com/wwwlicious/servicestack-seq-requestlogsfeature</projectUrl>
-    <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+    <licenseUrl>https://www.mozilla.org/en-US/MPL/2.0/</licenseUrl>
     <iconUrl>https://servicestack.net/img/logo-32.png</iconUrl>
     <tags>seq logging servicestack plugin requestlogs</tags>
     <dependencies>
-      <dependency id="ServiceStack" version="[4, 5)" />
-      <dependency id="ServiceStack.Common" version="[4, 5)" />
-      <dependency id="ServiceStack.Text" version="[4, 5)" />
+      <dependency id="ServiceStack.Server" version="[4, 5)" />
     </dependencies>
   </metadata>
 </package>
