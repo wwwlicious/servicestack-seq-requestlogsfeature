@@ -1,6 +1,7 @@
 # ServiceStack.Seq.RequestLogsFeature
 
 [![Build status](https://ci.appveyor.com/api/projects/status/89pfhb02b0psi80e/branch/master?svg=true)](https://ci.appveyor.com/project/wwwlicious/servicestack-seq-requestlogsfeature/branch/master)
+[![NuGet version](https://badge.fury.io/nu/ServiceStack.Seq.RequestLogsFeature.svg)](https://badge.fury.io/nu/ServiceStack.Seq.RequestLogsFeature)
 
 A ServiceStack plugin that logs requests to [Seq](http://getseq.net). For more details view the [blog post](http://wwwlicious.com/2015/10/25/logging-servicestack-requests-with-seq/)
 
@@ -30,18 +31,19 @@ public override void Configure(Container container)
     Plugins.Add(
         new SeqRequestLogsFeature(
             new SeqRequestLogsSettings("http://localhost:5341") // required seq server url:port
-                .ApiKey("seqApiKey")            // optional api key for seq
+                // everything else is optional
+                .ApiKey("seqApiKey")            // api key for seq
                 .Enabled()                      // default true
                 .EnableErrorTracking()          // default true
                 .EnableSessionTracking()        // default false
                 .EnableRequestBodyTracking()    // default false
                 .EnableResponseTracking()       // default false
-                .ClearExcludeRequestDtoTypes()  // remove default exclusions (RequestLog)
-                .ClearHideRequestBodyForRequestDtoTypes() // remove default request body exclusions (Auth, Registration)
                 .ExcludeRequestDtoTypes(typeof(SeqRequestLogConfig)) // add your own type exclusions
                 .HideRequestBodyForRequestDtoTypes(typeof(SeqRequestLogConfig)) // add your own exclusions for bodyrequest logging
                 .RequiredRoles("admin", "ops") // restrict the runtime configuration to specific roles
                 .UseCustomLogger(new CustomLogger()) // swap out the seq logger for your own implementation
+                .ClearExcludeRequestDtoTypes()  // remove default exclusions (RequestLog)
+                .ClearHideRequestBodyForRequestDtoTypes() // remove default request body exclusions (Auth, Registration)
                 .AddLogEvent(
                     (request, dto, response, duration) =>
                         {
