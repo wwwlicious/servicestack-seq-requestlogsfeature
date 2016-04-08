@@ -16,16 +16,64 @@ The package is available from nuget.org
 
 You must have an instance of seq server to post to. You can download and install a copy of Seq [here](http://getseq.net).
 
-# Usage
+Check if you have it running locally on the default port [http://localhost:5341](http://localhost:5341)
 
-In your app host add the plugin and specify your seq url and optional seq apiKey.
+# Quick Start
+
+In your `AppHost` class `Configure` method, add the plugin and specify your seq url.
+You can futher customise the configuration options using the example below
 
 ```csharp
 public override void Configure(Container container)
 {
-  // Config examples
-  Plugins.Add(new SeqRequestLogsFeature("http://localhost:5341", "seq-api-key"));
+    // Config examples
+    Plugins.Add(
+        new SeqRequestLogsFeature(
+            new SeqRequestLogsSettings("http://localhost:5341") // required seq server url:port
+                .ApiKey("seqApiKey")            // optional api key for seq
+                .Enabled()                      // default true
+                .EnableErrorTracking()          // default true
+                .EnableSessionTracking()        // default false
+                .EnableRequestBodyTracking()    // default false
+                .EnableResponseTracking()       // default false
+                .ClearExcludeRequestDtoTypes()  // remove default exclusions (RequestLog)
+                .ClearHideRequestBodyForRequestDtoTypes() // remove default request body exclusions (Auth, Registration)
+                .ExcludeRequestDtoTypes(typeof(SeqRequestLogConfig)) // add your own type exclusions
+                .HideRequestBodyForRequestDtoTypes(typeof(SeqRequestLogConfig)) // add your own exclusions for bodyrequest logging
+                .RequiredRoles("admin", "ops") // restrict the runtime configuration to specific roles
+                .UseCustomLogger(new CustomLogger()) // swap out the seq logger for your own implementation
+                .AddLogEvent(
+                    (request, dto, response, duration) =>
+                        {
+                            // your custom log event
+                        })));
+
 }
 ```
+
+### Runtime configuration
+
+You can change the logging configuration at runtime 
+
+```csharp
+var request = new SeqRequestLogConfig
+                    {
+                        Enabled = false,
+                        EnableRequestBodyTracking = false,
+                        EnableErrorTracking = false,
+                        EnableSessionTracking = false,
+                        EnableResponseTracking = false
+                    };
+
+var client = new JsonServiceClient("http://myservice");
+client.Send(request);
+```
+
+### Metadata page
+
+![Metadata](assets/SeqRequestLogger_Metadata.png)
+
+
+### Logging in action
 
 ![Seq Request Logs](assets/Seq.png)

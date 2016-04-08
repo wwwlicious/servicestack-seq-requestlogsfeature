@@ -1,91 +1,39 @@
-﻿namespace ServiceStack.Seq.RequestLogsFeature
+﻿// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+namespace ServiceStack.Seq.RequestLogsFeature
 {
-    using System;
-
-    using ServiceStack.Admin;
-    using ServiceStack.Web;
-
     public class SeqRequestLogsFeature : IPlugin
     {
-        private readonly string _apiKey;
-        private readonly bool _initialEnabled;
-        public SeqRequestLogsFeature(string seqUrl, string apiKey = null, bool enabled = true, bool enableErrorTracking = true, bool enabledRequestBodyTracking = false, bool enableSessionTracking = false, bool enableResponseTracking = false)
+        public SeqRequestLogsFeature(SeqRequestLogsSettings settings)
         {
-            this.SeqUrl = seqUrl;
-            _apiKey = apiKey;
-            _initialEnabled = enabled;
-            this.EnableErrorTracking = enableErrorTracking;
-            this.EnableRequestBodyTracking = enabledRequestBodyTracking;
-            this.EnableSessionTracking = enableSessionTracking;
-            this.EnableResponseTracking = enableResponseTracking;
-            this.ExcludeRequestDtoTypes = new[] { typeof(RequestLogs) };
-            this.HideRequestBodyForRequestDtoTypes = new[] {
-                typeof(Authenticate), typeof(Register)
-            };
+            Settings = settings;
         }
-        /// <summary>
-        /// Seq server url
-        /// </summary>
-        public string SeqUrl { get; set; }
 
-        /// <summary>
-        /// Turn On/Off Session Tracking
-        /// </summary>
-        public bool EnableSessionTracking { get; set; }
-
-        /// <summary>
-        /// Turn On/Off Logging of Raw Request Body, default is Off
-        /// </summary>
-        public bool EnableRequestBodyTracking { get; set; }
-
-        /// <summary>
-        /// Turn On/Off Tracking of Responses
-        /// </summary>
-        public bool EnableResponseTracking { get; set; }
-
-        /// <summary>
-        /// Turn On/Off Tracking of Exceptions
-        /// </summary>
-        public bool EnableErrorTracking { get; set; }
-
-        /// <summary>
-        /// Change the RequestLogger provider. Default is SeqRequestLogger
-        /// </summary>
-        public IRequestLogger RequestLogger { get; set; }
-
-        /// <summary>
-        /// Don't log requests of these types. By default RequestLog's are excluded
-        /// </summary>
-        public Type[] ExcludeRequestDtoTypes { get; set; }
-
-        /// <summary>
-        /// Don't log request bodys for services with sensitive information.
-        /// By default Auth and Registration requests are hidden.
-        /// </summary>
-        public Type[] HideRequestBodyForRequestDtoTypes { get; set; }
-
+        public SeqRequestLogsSettings Settings { get; private set; }
+       
         public void Register(IAppHost appHost)
         {
-            var requestLogger = RequestLogger ?? new SeqRequestLogger(SeqUrl, _apiKey, _initialEnabled);
-            requestLogger.EnableSessionTracking = EnableSessionTracking;
-            requestLogger.EnableResponseTracking = EnableResponseTracking;
-            requestLogger.EnableRequestBodyTracking = EnableRequestBodyTracking;
-            requestLogger.EnableErrorTracking = EnableErrorTracking;
-            requestLogger.ExcludeRequestDtoTypes = ExcludeRequestDtoTypes;
-            requestLogger.HideRequestBodyForRequestDtoTypes = HideRequestBodyForRequestDtoTypes;
+            var requestLogger = Settings.GetLogger();
+            requestLogger.EnableSessionTracking = Settings.GetEnableSessionTracking();
+            requestLogger.EnableResponseTracking = Settings.GetEnableResponseTracking();
+            requestLogger.EnableRequestBodyTracking = Settings.GetEnableRequestBodyTracking();
+            requestLogger.EnableErrorTracking = Settings.GetEnableErrorTracking();
+            requestLogger.ExcludeRequestDtoTypes = Settings.GetExcludeRequestDtoTypes();
+            requestLogger.HideRequestBodyForRequestDtoTypes = Settings.GetHideRequestBodyForRequestDtoTypes();
 
             appHost.Register(requestLogger);
             appHost.RegisterService(typeof(SeqRequestLogConfigService));
-            if (EnableRequestBodyTracking)
+            if (Settings.GetEnableRequestBodyTracking())
             {
                 appHost.PreRequestFilters.Insert(0, (httpReq, httpRes) =>
                 {
-                    httpReq.UseBufferedStream = EnableRequestBodyTracking;
+                    httpReq.UseBufferedStream = Settings.GetEnableRequestBodyTracking();
                 });
             }
 
             appHost.GetPlugin<MetadataFeature>()
-                .AddDebugLink(SeqUrl, "Seq Request Logs")
+                .AddDebugLink(Settings.GetUrl(), "Seq Request Logs")
                 .AddPluginLink("/SeqRequestLogConfig", "Seq IRequestLogger Configuration");
         }
     }

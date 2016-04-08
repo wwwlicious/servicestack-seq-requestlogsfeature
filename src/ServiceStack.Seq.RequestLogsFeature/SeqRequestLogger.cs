@@ -1,4 +1,7 @@
-﻿namespace ServiceStack.Seq.RequestLogsFeature
+﻿// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+namespace ServiceStack.Seq.RequestLogsFeature
 {
     using System;
     using System.Collections.Generic;
@@ -11,24 +14,25 @@
 
     public class SeqRequestLogger : IRequestLogger
     {
+        private readonly SeqRequestLogsSettings settings;
+
         private static int requestId;
 
-        private readonly string seqUrl;
-
-        private readonly string apiKey;
-
-        public SeqRequestLogger(string seqUrl, string apiKey = null, bool enabled = true, bool enableErrorTracking = true, bool enabledRequestBodyTracking = false, bool enableSessionTracking = false, bool enableResponseTracking = false, Action<IRequest, object, object, TimeSpan> rawLogEvent = null)
+        public SeqRequestLogger(SeqRequestLogsSettings settings)
         {
-            seqUrl.ThrowIfNullOrEmpty(nameof(seqUrl));
-            this.seqUrl = seqUrl;
-            this.apiKey = apiKey;
-            Enabled = enabled;
-            EnableErrorTracking = enableErrorTracking;
-            EnableRequestBodyTracking = enabledRequestBodyTracking;
-            EnableResponseTracking = enableResponseTracking;
-            EnableSessionTracking = enableSessionTracking;
-            RawLogEvent = rawLogEvent;
+            this.settings = settings;
+            
+            // set interface props, custom props are access via settings
+            Enabled = settings.GetEnabled();
+            EnableErrorTracking = settings.GetEnableErrorTracking();
+            EnableRequestBodyTracking = settings.GetEnableRequestBodyTracking();
+            EnableResponseTracking = settings.GetEnableResponseTracking();
+            EnableSessionTracking = settings.GetEnableSessionTracking();
+            ExcludeRequestDtoTypes = settings.GetExcludeRequestDtoTypes();
+            HideRequestBodyForRequestDtoTypes = settings.GetHideRequestBodyForRequestDtoTypes();
+            RequiredRoles = settings.GetRequiredRoles();
         }
+
         public bool Enabled { get; set; }
 
         public bool EnableSessionTracking { get; set; }
@@ -38,31 +42,22 @@
         public bool EnableResponseTracking { get; set; }
 
         public bool EnableErrorTracking { get; set; }
-
-        /// <summary>
-        /// Meaningless as reads and therefore access is controlled by seq
-        /// </summary>
-        public string[] RequiredRoles { get; set; } = new string[0];
+        
+        public string[] RequiredRoles { get; set; }
 
         public Type[] ExcludeRequestDtoTypes { get; set; }
 
-        /// <summary>
-        /// Tap into log events stream, still called even if disabled from Seq Logging 
-        /// </summary>
-        public Action<IRequest, object, object, TimeSpan> RawLogEvent;
-
         public void Log(IRequest request, object requestDto, object response, TimeSpan requestDuration)
         {
-            if (RawLogEvent != null)
-                RawLogEvent(request, requestDto, response, requestDuration);
+            // bypasses all flags to run raw log event delegate if configured
+            settings.GetRawLogEvent()?.Invoke(request, requestDto, response, requestDuration);
 
-            if (!Enabled)
-                return;
+            
+            if (!Enabled) return;
 
             var requestType = requestDto?.GetType();
 
-            if (ExcludeRequestType(requestType))
-                return;
+            if (ExcludeRequestType(requestType)) return;
 
             var entry = CreateEntry(request, requestDto, response, requestDuration, requestType);
 
@@ -71,10 +66,10 @@
             // batch entries for posting
             using (var scope = JsConfig.With(emitCamelCaseNames: false))
             {
-                "{0}/api/events/raw".Fmt(seqUrl)
-                    .PostJsonToUrlAsync(
-                        new SeqLogRequest(entry),
-                        webRequest => webRequest.Headers.Add("X-Seq-ApiKey", apiKey));
+                // scope to force json camel casing off
+                $"{settings.GetUrl()}/api/events/raw".PostJsonToUrlAsync(
+                    new SeqLogRequest(entry),
+                    webRequest => webRequest.Headers.Add("X-Seq-ApiKey", settings.GetApiKey()));
             }
         }
 
@@ -89,13 +84,13 @@
             {
                 Timestamp = DateTime.UtcNow.ToString("o")
             };
-            requestLogEntry.Properties.Add("IsRequestLog", "True"); //Used for filtering requests easily
+            requestLogEntry.Properties.Add("IsRequestLog", "True"); // Used for filtering requests easily
             requestLogEntry.Properties.Add("RequestDuration", requestDuration.ToString());
             requestLogEntry.Properties.Add("RequestCount", Interlocked.Increment(ref requestId).ToString());
 
             if (request != null)
             {
-                requestLogEntry.MessageTemplate = "SeqRequestLogsFeature request from {0}".Fmt(request.AbsoluteUri.Split('?')[0]);
+                requestLogEntry.MessageTemplate = $"SeqRequestLogsFeature request from {request.AbsoluteUri.Split('?')[0]}";
                 requestLogEntry.Properties.Add("HttpMethod", request.Verb);
                 requestLogEntry.Properties.Add("AbsoluteUri", request.AbsoluteUri);
                 requestLogEntry.Properties.Add("PathInfo", request.PathInfo);
@@ -106,6 +101,7 @@
                 requestLogEntry.Properties.Add("UserAuthId", request.GetItemOrCookie(HttpHeaders.XUserAuthId));
                 requestLogEntry.Properties.Add("SessionId", request.GetSessionId());
                 requestLogEntry.Properties.Add("Items", request.Items);
+                requestLogEntry.Properties.Add("ElapsedMilliseconds", requestDuration.TotalMilliseconds);
                 requestLogEntry.Properties.Add("Session", EnableSessionTracking ? request.GetSession(false) : null);
             }
 
@@ -169,7 +165,7 @@
         public List<RequestLogEntry> GetLatestLogs(int? take)
         {
             // use seq browser for reading logs
-            throw new NotSupportedException("use seq browser {0} for reading logs".Fmt(seqUrl));
+            throw new NotSupportedException($"use seq browser {settings.GetUrl()} for reading logs");
         }
 
         public Type[] HideRequestBodyForRequestDtoTypes { get; set; }

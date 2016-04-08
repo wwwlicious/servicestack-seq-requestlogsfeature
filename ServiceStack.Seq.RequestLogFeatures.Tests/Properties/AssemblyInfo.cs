@@ -1,18 +1,16 @@
-﻿// This Source Code Form is subject to the terms of the Mozilla Public
-// License, v. 2.0. If a copy of the MPL was not distributed with this
-// file, You can obtain one at http://mozilla.org/MPL/2.0/.
-using System.Reflection;
+﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ConsoleDemo")]
-[assembly: AssemblyDescription("a sample project which logs to a seq instance")]
+[assembly: AssemblyTitle("ServiceStack.Seq.RequestLogFeatures.Tests")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("wwwlicious.com")]
-[assembly: AssemblyProduct("ConsoleDemo")]
-[assembly: AssemblyCopyright("Copyright © 2016")]
+[assembly: AssemblyCompany("Microsoft")]
+[assembly: AssemblyProduct("ServiceStack.Seq.RequestLogFeatures.Tests")]
+[assembly: AssemblyCopyright("Copyright © Microsoft 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -22,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("c060a973-6ae0-4502-bda7-05009f4b1d0e")]
+[assembly: Guid("d4cddbe0-ce6a-4bf5-a4c9-0eb76ad14124")]
 
 // Version information for an assembly consists of the following four values:
 //
