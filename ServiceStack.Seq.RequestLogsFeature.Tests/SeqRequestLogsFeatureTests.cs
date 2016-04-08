@@ -29,20 +29,5 @@ namespace ServiceStack.Seq.RequestLogsFeature.Tests
         {
             new SeqRequestLogsFeature(new SeqRequestLogsSettings("http://localhost"));
         }
-
-        [Fact]
-        public void ConfigChanges()
-        {
-            var request = new SeqRequestLogConfig
-                             {
-                                 Enabled = false,
-                                 EnableRequestBodyTracking = false,
-                                 EnableErrorTracking = false,
-                                 EnableSessionTracking = false,
-                                 EnableResponseTracking = false
-                             };
-            var client = new JsonServiceClient("http://myservice");
-            client.Send(request);
-        }
     }
 }
