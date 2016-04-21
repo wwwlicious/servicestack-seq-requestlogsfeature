@@ -7,12 +7,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ConsoleDemo")]
-[assembly: AssemblyDescription("a sample project which logs to a seq instance")]
+[assembly: AssemblyTitle("ServiceStack.Seq.RequestLogsFeature.Tests")]
+[assembly: AssemblyDescription("Plugin tests")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("wwwlicious.com")]
-[assembly: AssemblyProduct("ConsoleDemo")]
-[assembly: AssemblyCopyright("Copyright © 2016")]
+[assembly: AssemblyProduct("ServiceStack.Seq.RequestLogsFeature.Tests")]
+[assembly: AssemblyCopyright("Copyright © wwwlicious.com 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -22,7 +22,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("c060a973-6ae0-4502-bda7-05009f4b1d0e")]
+[assembly: Guid("f5af4892-309e-4f92-b6d0-4dc79bb14514")]
 
 // Version information for an assembly consists of the following four values:
 //
