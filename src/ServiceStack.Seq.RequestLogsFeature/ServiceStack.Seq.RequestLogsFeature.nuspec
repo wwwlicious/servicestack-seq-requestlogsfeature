@@ -3,7 +3,7 @@
   <metadata>
     <id>ServiceStack.Seq.RequestLogsFeature</id>
     <version>$version$</version>
-    <authors>Scott Mackay (@wwwlicious)</authors>
+    <authors>Scott Mackay (@wwwlicious), Richard Safier (@rsafier)</authors>
     <description>Servicestack plugin based on RequestLogsFeature that logs to Seq.</description>
     <language>en-US</language>
     <projectUrl>https://github.com/wwwlicious/servicestack-seq-requestlogsfeature</projectUrl>

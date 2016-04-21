@@ -47,17 +47,11 @@ namespace ServiceStack.Seq.RequestLogsFeature
 
         public Type[] ExcludeRequestDtoTypes { get; set; }
 
-
         /// <summary>
         /// Input: request, requestDto, response, requestDuration
         /// Output: List of Properties to append to Seq Log entry
         /// </summary>
         public Func<IRequest,object,object,TimeSpan,Dictionary<string, object>> AppendProperties { get; set; }
-
-        /// <summary>
-        /// Tap into log events stream, still called even if disabled from Seq Logging 
-        /// </summary>
-        public Action<IRequest, object, object, TimeSpan> RawLogEvent;
 
         public void Log(IRequest request, object requestDto, object response, TimeSpan requestDuration)
         {
@@ -114,6 +108,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
                 requestLogEntry.Properties.Add("SessionId", request.GetSessionId());
                 requestLogEntry.Properties.Add("Items", request.Items);
                 requestLogEntry.Properties.Add("Session", EnableSessionTracking ? request.GetSession(false) : null);
+                if (request.Headers["x-mac-requestid"] != null) requestLogEntry.Properties.Add("CorrelationId", request.Headers["x-mac-requestid"]);
             }
 
             if (HideRequestBodyForRequestDtoTypes != null

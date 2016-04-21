@@ -58,6 +58,11 @@ public override void Configure(Container container)
 }
 ```
 
+### Request Correlation
+
+This plugin will detect the default header `x-mac-requestid` created by [ServiceStack.Request.Correlation](https://github.com/MacLeanElectrical/servicestack-request-correlation)
+and add this as a property. This is useful for tracking requests from their point of origin across multiple services
+
 ### Runtime configuration
 
 You can change the logging configuration at runtime 

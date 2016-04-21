@@ -33,7 +33,9 @@ namespace ConsoleDemo
             Plugins.Add(
                 new SeqRequestLogsFeature(
                     new SeqRequestLogsSettings("http://localhost:5341") // required seq server url:port
-                        .ApiKey("seqApiKey")            // optional api key for seq
+
+                        // everything below is optional
+                        .ApiKey("seqApiKey")            // api key for seq
                         .Enabled()                      // default true
                         .EnableErrorTracking()          // default true
                         .EnableSessionTracking()        // default false
@@ -44,11 +46,11 @@ namespace ConsoleDemo
                         .ExcludeRequestDtoTypes(typeof(SeqRequestLogConfig)) // add your own type exclusions
                         .HideRequestBodyForRequestDtoTypes(typeof(SeqRequestLogConfig)) // add your own exclusions for bodyrequest logging
                         .RequiredRoles("admin", "ops") // restrict the runtime configuration to specific roles
-                        //.UseCustomLogger(new CustomLogger()) // swap out the seq logger for your own implementation
+                        // .UseCustomLogger(new CustomLogger()) // swap out the seq logger for your own implementation
                         .AppendProperties(
                             (request, dto, response, duration) =>
                             {
-                                return new Dictionary<string, object>() { { "NewCustomProperty", "42" } }; //add additional properties to Seq log entry.
+                                return new Dictionary<string, object>() { { "NewCustomProperty", "42" } }; // add additional properties to Seq log entry.
                             })
                         .AddLogEvent(
                             (request, dto, response, duration) =>
