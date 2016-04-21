@@ -39,6 +39,8 @@ namespace ServiceStack.Seq.RequestLogsFeature
 
         private RawLogEvent rawLogEvent;
 
+        private Func<IRequest, object, object, TimeSpan, Dictionary<string, object>> appendProperties;
+
         public SeqRequestLogsSettings(string url)
         {
             this.url = url;
@@ -89,6 +91,12 @@ namespace ServiceStack.Seq.RequestLogsFeature
         public SeqRequestLogsSettings UseCustomLogger(IRequestLogger logger)
         {
             this.logger = logger;
+            return this;
+        }
+
+        public SeqRequestLogsSettings AppendProperties(Func<IRequest, object, object, TimeSpan, Dictionary<string, object>> appendProperties)
+        {
+            this.appendProperties = appendProperties;
             return this;
         }
 
@@ -172,7 +180,10 @@ namespace ServiceStack.Seq.RequestLogsFeature
             this.hideRequestBodyForRequestDtoTypes.Clear();
             return this;
         }
-
+        internal Func<IRequest, object, object, TimeSpan, Dictionary<string, object>> GetAppendProperties()
+        {
+            return appendProperties;
+        }
         internal string GetUrl()
         {
             validator.ValidateAndThrow(this);

@@ -44,6 +44,11 @@ public override void Configure(Container container)
                 .UseCustomLogger(new CustomLogger()) // swap out the seq logger for your own implementation
                 .ClearExcludeRequestDtoTypes()  // remove default exclusions (RequestLog)
                 .ClearHideRequestBodyForRequestDtoTypes() // remove default request body exclusions (Auth, Registration)
+                .AppendProperties(
+                     (request, dto, response, duration) =>
+                        {
+                            return new Dictionary<string, object>() { { "NewCustomProperty", "42" } }; //add additional properties to Seq log entry.
+                        })
                 .AddLogEvent(
                     (request, dto, response, duration) =>
                         {
