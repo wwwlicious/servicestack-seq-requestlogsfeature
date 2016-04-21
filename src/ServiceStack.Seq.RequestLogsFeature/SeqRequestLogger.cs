@@ -11,13 +11,12 @@ namespace ServiceStack.Seq.RequestLogsFeature
 
     using ServiceStack.Web;
     using ServiceStack.Text;
-
+    using ServiceStack;
     public class SeqRequestLogger : IRequestLogger
     {
         private readonly SeqRequestLogsSettings settings;
 
         private static int requestId;
-
         public SeqRequestLogger(SeqRequestLogsSettings settings)
         {
             this.settings = settings;
@@ -31,6 +30,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
             ExcludeRequestDtoTypes = settings.GetExcludeRequestDtoTypes();
             HideRequestBodyForRequestDtoTypes = settings.GetHideRequestBodyForRequestDtoTypes();
             RequiredRoles = settings.GetRequiredRoles();
+            AppendProperties = settings.GetAppendProperties();  
         }
 
         public bool Enabled { get; set; }
@@ -46,6 +46,18 @@ namespace ServiceStack.Seq.RequestLogsFeature
         public string[] RequiredRoles { get; set; }
 
         public Type[] ExcludeRequestDtoTypes { get; set; }
+
+
+        /// <summary>
+        /// Input: request, requestDto, response, requestDuration
+        /// Output: List of Properties to append to Seq Log entry
+        /// </summary>
+        public Func<IRequest,object,object,TimeSpan,Dictionary<string, object>> AppendProperties { get; set; }
+
+        /// <summary>
+        /// Tap into log events stream, still called even if disabled from Seq Logging 
+        /// </summary>
+        public Action<IRequest, object, object, TimeSpan> RawLogEvent;
 
         public void Log(IRequest request, object requestDto, object response, TimeSpan requestDuration)
         {
@@ -85,7 +97,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
                 Timestamp = DateTime.UtcNow.ToString("o")
             };
             requestLogEntry.Properties.Add("IsRequestLog", "True"); // Used for filtering requests easily
-            requestLogEntry.Properties.Add("RequestDuration", requestDuration.ToString());
+            requestLogEntry.Properties.Add("RequestDuration", requestDuration.TotalMilliseconds);
             requestLogEntry.Properties.Add("RequestCount", Interlocked.Increment(ref requestId).ToString());
 
             if (request != null)
@@ -101,7 +113,6 @@ namespace ServiceStack.Seq.RequestLogsFeature
                 requestLogEntry.Properties.Add("UserAuthId", request.GetItemOrCookie(HttpHeaders.XUserAuthId));
                 requestLogEntry.Properties.Add("SessionId", request.GetSessionId());
                 requestLogEntry.Properties.Add("Items", request.Items);
-                requestLogEntry.Properties.Add("ElapsedMilliseconds", requestDuration.TotalMilliseconds);
                 requestLogEntry.Properties.Add("Session", EnableSessionTracking ? request.GetSession(false) : null);
             }
 
@@ -151,6 +162,10 @@ namespace ServiceStack.Seq.RequestLogsFeature
 
                 var ex = response as Exception;
                 requestLogEntry.Properties.Add("Error", ex);
+            }
+            foreach(var kvPair in AppendProperties?.Invoke(request, requestDto, response, requestDuration).Safe())
+            {
+                requestLogEntry.Properties.GetOrAdd(kvPair.Key, key => kvPair.Value);
             }
             return requestLogEntry;
         }
