@@ -92,6 +92,7 @@ client.Send(request);
 Once you start your `AppHost`, every request will be now logged to seq using the default options or the options you provided.
 Logging levels are colour coded and depending on your settings, the full requestDto's and even responseDto's are available to search.
 
-In the default view, you will see the list of requests which can be expanded by clicking on each row.
+In the example below you can see just a few examples of how the log data can be manipulated. For more info on the power of seq and 
+structured logging, see [the docs](http://docs.getseq.net/docs)
 
-![Seq Request Logs](assets/Seq.png)
+![Seq Request Logs](assets/seq.gif)
