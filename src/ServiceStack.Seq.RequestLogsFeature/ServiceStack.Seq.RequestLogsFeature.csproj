@@ -68,6 +68,7 @@
     <Reference Include="System.Net" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DictionaryExtensions.cs" />
     <Compile Include="LogExtensions.cs" />
     <Compile Include="SeqLogRequest.cs" />
     <Compile Include="SeqRequestLogConfig.cs" />

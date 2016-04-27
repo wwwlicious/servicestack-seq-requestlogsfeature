@@ -12,6 +12,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
     using ServiceStack.Web;
     using ServiceStack.Text;
     using ServiceStack;
+    using ServiceStack.Logging;
 
     public class SeqRequestLogger : IRequestLogger
     {
@@ -52,7 +53,8 @@ namespace ServiceStack.Seq.RequestLogsFeature
                     new SeqLogRequest(entry),
                     webRequest =>
                         {
-                            webRequest.Headers.Add("X-Seq-ApiKey", apiKey);
+                            if(!string.IsNullOrWhiteSpace(apiKey))
+                                webRequest.Headers.Add("X-Seq-ApiKey", apiKey);
                         });
             }
         }
@@ -81,18 +83,25 @@ namespace ServiceStack.Seq.RequestLogsFeature
 
         public void Log(IRequest request, object requestDto, object response, TimeSpan requestDuration)
         {
-            // bypasses all flags to run raw log event delegate if configured
-            settings.GetRawLogEvent()?.Invoke(request, requestDto, response, requestDuration);
-            
-            if (!Enabled) return;
+            try
+            {
+                // bypasses all flags to run raw log event delegate if configured
+                settings.GetRawLogEvent()?.Invoke(request, requestDto, response, requestDuration);
 
-            var requestType = requestDto?.GetType();
+                if (!Enabled) return;
 
-            if (ExcludeRequestType(requestType)) return;
+                var requestType = requestDto?.GetType();
 
-            var entry = CreateEntry(request, requestDto, response, requestDuration, requestType);
+                if (ExcludeRequestType(requestType)) return;
 
-            BufferedLogEntries(entry);
+                var entry = CreateEntry(request, requestDto, response, requestDuration, requestType);
+                BufferedLogEntries(entry);
+            }
+            catch (Exception ex)
+            {
+                LogManager.GetLogger(typeof(SeqRequestLogger))
+                    .Error("SeqRequestLogger threw unexpected exception", ex);
+            }
         }
 
         public List<RequestLogEntry> GetLatestLogs(int? take)
@@ -108,32 +117,31 @@ namespace ServiceStack.Seq.RequestLogsFeature
             TimeSpan requestDuration,
             Type requestType)
         {
+            var totalMilliseconds = Math.Round(requestDuration.TotalMilliseconds, MidpointRounding.AwayFromZero);
+
             var requestLogEntry = new SeqRequestLogEntry();
             requestLogEntry.Timestamp = DateTime.UtcNow.ToString("o");
+            requestLogEntry.MessageTemplate = "HTTP {HttpMethod} {PathInfo} responded {StatusCode} in {ElapsedMilliseconds}ms";
             requestLogEntry.Properties.Add("IsRequestLog", "True"); // Used for filtering requests easily
-
-            var totalMilliseconds = requestDuration.TotalMilliseconds;
-            
-            requestLogEntry.Properties.Add("ElapsedMilliseconds", totalMilliseconds);
+            requestLogEntry.Properties.Add("SourceContext", "ServiceStack.Seq.RequestLogsFeature");
+            requestLogEntry.Properties.Add("ElapsedMilliseconds", (totalMilliseconds == 0) ? requestDuration.TotalMilliseconds : totalMilliseconds);
             requestLogEntry.Properties.Add("RequestCount", Interlocked.Increment(ref requestId).ToString());
 
             if (request != null)
             {
-                requestLogEntry.MessageTemplate = $"SeqRequestLogsFeature request from {request.AbsoluteUri.Split('?')[0]}";
                 requestLogEntry.Properties.Add("HttpMethod", request.Verb);
                 requestLogEntry.Properties.Add("AbsoluteUri", request.AbsoluteUri);
                 requestLogEntry.Properties.Add("PathInfo", request.PathInfo);
                 requestLogEntry.Properties.Add("IpAddress", request.UserHostAddress);
                 requestLogEntry.Properties.Add("ForwardedFor", request.Headers[HttpHeaders.XForwardedFor]);
                 requestLogEntry.Properties.Add("Referer", request.Headers[HttpHeaders.Referer]);
-                foreach (var header in request.Headers.ToDictionary())
-                {
-                    requestLogEntry.Properties.Add($"Header-{header.Key}", header.Value);
-                }
                 requestLogEntry.Properties.Add("UserAuthId", request.GetItemOrCookie(HttpHeaders.XUserAuthId));
                 requestLogEntry.Properties.Add("SessionId", request.GetSessionId());
                 requestLogEntry.Properties.Add("Session", EnableSessionTracking ? request.GetSession(false) : null);
                 requestLogEntry.Properties.Add("Items", request.Items.WithoutDuplicates());
+                requestLogEntry.Properties.Add("StatusCode", request.Response?.StatusCode);
+                requestLogEntry.Properties.Add("StatusDescription", request.Response?.StatusDescription);
+                requestLogEntry.Properties.Add("ResponseStatus", request.Response?.GetResponseStatus());
             }
 
             if (HideRequestBodyForRequestDtoTypes != null
@@ -151,20 +159,13 @@ namespace ServiceStack.Seq.RequestLogsFeature
                     }
                 }
             }
-
+            
             if (!response.IsErrorResponse())
             {
                 if (EnableResponseTracking)
                 {
                     requestLogEntry.Properties.Add("ResponseDto", response);
-                    var httpResponse = response as IHttpResult;
-                    if (httpResponse != null)
-                    {
-                        
-                        requestLogEntry.Properties.Add("ResponseStatus", httpResponse.Response?.GetResponseStatus());
-                        requestLogEntry.Properties.Add("StatusCode", httpResponse.Status.ToString());
-                        requestLogEntry.Properties.Add("StatusDescription", httpResponse.StatusDescription);
-                    }
+                    
                 }
             }
             else if (EnableErrorTracking)
@@ -191,6 +192,14 @@ namespace ServiceStack.Seq.RequestLogsFeature
                 foreach (var kvPair in AppendProperties?.Invoke(request, requestDto, response, requestDuration).Safe())
                 {
                     requestLogEntry.Properties.GetOrAdd(kvPair.Key, key => kvPair.Value);
+                }
+            }
+
+            foreach (var header in request.Headers.ToDictionary())
+            {
+                if (!requestLogEntry.Properties.ContainsValue(header.Value))
+                {
+                    requestLogEntry.Properties.Add($"Header-{header.Key}", header.Value);
                 }
             }
 

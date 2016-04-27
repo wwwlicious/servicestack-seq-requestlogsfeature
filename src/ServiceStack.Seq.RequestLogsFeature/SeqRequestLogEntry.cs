@@ -13,7 +13,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         public SeqRequestLogEntry()
         {
             MessageTemplate = "Servicestack SeqRequestLogsFeature";
-            Properties = new Dictionary<string, object>();
+            Properties = new SortedDictionary<string, object>();
             Level = "Debug";
         }
 
@@ -21,7 +21,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
 
         public string Level { get; set; }
 
-        public Dictionary<string, object> Properties { get; }
+        public SortedDictionary<string, object> Properties { get; }
 
         public string MessageTemplate { get; set; }
 
