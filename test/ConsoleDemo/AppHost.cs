@@ -9,6 +9,7 @@ namespace ConsoleDemo
     using Funq;
 
     using ServiceStack;
+    using ServiceStack.Request.Correlation;
     using ServiceStack.Seq.RequestLogsFeature;
     using ServiceStack.Web;
 
@@ -30,6 +31,7 @@ namespace ConsoleDemo
         public override void Configure(Container container)
         {
             // Config examples
+            Plugins.Add(new RequestCorrelationFeature());
             Plugins.Add(
                 new SeqRequestLogsFeature(
                     new SeqRequestLogsSettings("http://localhost:5341") // required seq server url:port
@@ -50,7 +52,7 @@ namespace ConsoleDemo
                         .AppendProperties(
                             (request, dto, response, duration) =>
                             {
-                                return new Dictionary<string, object>() { { "NewCustomProperty", "42" } }; // add additional properties to Seq log entry.
+                                return new Dictionary<string, object> { { "NewCustomProperty", "42" } }; // add additional properties to Seq log entry.
                             })
                         .AddLogEvent(
                             (request, dto, response, duration) =>

@@ -18,7 +18,7 @@ namespace ConsoleDemo
         }
     }
 
-    public class Hello : IReturn<HelloResponse>
+    public class Hello : IReturn<HelloResponse>, IGet
     {
         public Hello(string name)
         {

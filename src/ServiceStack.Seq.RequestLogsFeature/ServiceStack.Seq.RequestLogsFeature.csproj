@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ServiceStack.Seq.RequestLogsFeature</RootNamespace>
     <AssemblyName>ServiceStack.Seq.RequestLogsFeature</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -68,6 +68,7 @@
     <Reference Include="System.Net" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LogExtensions.cs" />
     <Compile Include="SeqLogRequest.cs" />
     <Compile Include="SeqRequestLogConfig.cs" />
     <Compile Include="SeqRequestLogConfigService.cs" />

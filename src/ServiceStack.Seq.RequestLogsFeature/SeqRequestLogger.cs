@@ -12,15 +12,21 @@ namespace ServiceStack.Seq.RequestLogsFeature
     using ServiceStack.Web;
     using ServiceStack.Text;
     using ServiceStack;
+
     public class SeqRequestLogger : IRequestLogger
     {
         private readonly SeqRequestLogsSettings settings;
 
         private static int requestId;
+
+        private readonly string eventsUri;
+
+        private readonly string apiKey;
+
         public SeqRequestLogger(SeqRequestLogsSettings settings)
         {
             this.settings = settings;
-            
+
             // set interface props, custom props are access via settings
             Enabled = settings.GetEnabled();
             EnableErrorTracking = settings.GetEnableErrorTracking();
@@ -30,7 +36,25 @@ namespace ServiceStack.Seq.RequestLogsFeature
             ExcludeRequestDtoTypes = settings.GetExcludeRequestDtoTypes();
             HideRequestBodyForRequestDtoTypes = settings.GetHideRequestBodyForRequestDtoTypes();
             RequiredRoles = settings.GetRequiredRoles();
-            AppendProperties = settings.GetAppendProperties();  
+            AppendProperties = settings.GetAppendProperties();
+
+            eventsUri = $"{settings.GetUrl()}/api/events/raw";
+            apiKey = settings.GetApiKey();
+        }
+
+        private void BufferedLogEntries(SeqRequestLogEntry entry)
+        {
+            // TODO add buffering to logging for perf
+            // scope to force json camel casing off
+            using (JsConfig.With(emitCamelCaseNames: false))
+            {
+                eventsUri.PostJsonToUrlAsync(
+                    new SeqLogRequest(entry),
+                    webRequest =>
+                        {
+                            webRequest.Headers.Add("X-Seq-ApiKey", apiKey);
+                        });
+            }
         }
 
         public bool Enabled { get; set; }
@@ -47,17 +71,18 @@ namespace ServiceStack.Seq.RequestLogsFeature
 
         public Type[] ExcludeRequestDtoTypes { get; set; }
 
+        public Type[] HideRequestBodyForRequestDtoTypes { get; set; }
+
         /// <summary>
         /// Input: request, requestDto, response, requestDuration
         /// Output: List of Properties to append to Seq Log entry
         /// </summary>
-        public Func<IRequest,object,object,TimeSpan,Dictionary<string, object>> AppendProperties { get; set; }
+        public SeqRequestLogsSettings.PropertyAppender AppendProperties { get; set; }
 
         public void Log(IRequest request, object requestDto, object response, TimeSpan requestDuration)
         {
             // bypasses all flags to run raw log event delegate if configured
             settings.GetRawLogEvent()?.Invoke(request, requestDto, response, requestDuration);
-
             
             if (!Enabled) return;
 
@@ -67,16 +92,13 @@ namespace ServiceStack.Seq.RequestLogsFeature
 
             var entry = CreateEntry(request, requestDto, response, requestDuration, requestType);
 
-            // TODO inefficient as uses 1 event : 1 http post to seq
-            // replace with something to buffer/queue and  
-            // batch entries for posting
-            using (var scope = JsConfig.With(emitCamelCaseNames: false))
-            {
-                // scope to force json camel casing off
-                $"{settings.GetUrl()}/api/events/raw".PostJsonToUrlAsync(
-                    new SeqLogRequest(entry),
-                    webRequest => webRequest.Headers.Add("X-Seq-ApiKey", settings.GetApiKey()));
-            }
+            BufferedLogEntries(entry);
+        }
+
+        public List<RequestLogEntry> GetLatestLogs(int? take)
+        {
+            // use seq browser for reading logs
+            throw new NotSupportedException($"use seq browser {settings.GetUrl()} for reading logs");
         }
 
         protected SeqRequestLogEntry CreateEntry(
@@ -86,12 +108,13 @@ namespace ServiceStack.Seq.RequestLogsFeature
             TimeSpan requestDuration,
             Type requestType)
         {
-            var requestLogEntry = new SeqRequestLogEntry
-            {
-                Timestamp = DateTime.UtcNow.ToString("o")
-            };
+            var requestLogEntry = new SeqRequestLogEntry();
+            requestLogEntry.Timestamp = DateTime.UtcNow.ToString("o");
             requestLogEntry.Properties.Add("IsRequestLog", "True"); // Used for filtering requests easily
-            requestLogEntry.Properties.Add("RequestDuration", requestDuration.TotalMilliseconds);
+
+            var totalMilliseconds = requestDuration.TotalMilliseconds;
+            
+            requestLogEntry.Properties.Add("ElapsedMilliseconds", totalMilliseconds);
             requestLogEntry.Properties.Add("RequestCount", Interlocked.Increment(ref requestId).ToString());
 
             if (request != null)
@@ -103,12 +126,14 @@ namespace ServiceStack.Seq.RequestLogsFeature
                 requestLogEntry.Properties.Add("IpAddress", request.UserHostAddress);
                 requestLogEntry.Properties.Add("ForwardedFor", request.Headers[HttpHeaders.XForwardedFor]);
                 requestLogEntry.Properties.Add("Referer", request.Headers[HttpHeaders.Referer]);
-                requestLogEntry.Properties.Add("Headers", request.Headers.ToDictionary());
+                foreach (var header in request.Headers.ToDictionary())
+                {
+                    requestLogEntry.Properties.Add($"Header-{header.Key}", header.Value);
+                }
                 requestLogEntry.Properties.Add("UserAuthId", request.GetItemOrCookie(HttpHeaders.XUserAuthId));
                 requestLogEntry.Properties.Add("SessionId", request.GetSessionId());
-                requestLogEntry.Properties.Add("Items", request.Items);
                 requestLogEntry.Properties.Add("Session", EnableSessionTracking ? request.GetSession(false) : null);
-                if (request.Headers["x-mac-requestid"] != null) requestLogEntry.Properties.Add("CorrelationId", request.Headers["x-mac-requestid"]);
+                requestLogEntry.Properties.Add("Items", request.Items.WithoutDuplicates());
             }
 
             if (HideRequestBodyForRequestDtoTypes != null
@@ -135,6 +160,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
                     var httpResponse = response as IHttpResult;
                     if (httpResponse != null)
                     {
+                        
                         requestLogEntry.Properties.Add("ResponseStatus", httpResponse.Response?.GetResponseStatus());
                         requestLogEntry.Properties.Add("StatusCode", httpResponse.Status.ToString());
                         requestLogEntry.Properties.Add("StatusDescription", httpResponse.StatusDescription);
@@ -143,25 +169,31 @@ namespace ServiceStack.Seq.RequestLogsFeature
             }
             else if (EnableErrorTracking)
             {
-                var errorResponse = response as IHttpResult;
+                var errorResponse = response as IHttpError;
                 if (errorResponse != null)
                 {
                     requestLogEntry.Level = errorResponse.StatusCode >= HttpStatusCode.BadRequest
                                             && errorResponse.StatusCode < HttpStatusCode.InternalServerError
                                                 ? "Warning"
                                                 : "Error";
-                    requestLogEntry.Properties.Add("StatusCode", errorResponse.Status.ToString());
-                    requestLogEntry.Properties.Add("StatusDescription", errorResponse.StatusDescription);
-                    requestLogEntry.Properties.Add("ErrorResponse", errorResponse.Response);
+                    requestLogEntry.Properties.Add("ErrorCode", errorResponse.ErrorCode);
+                    requestLogEntry.Properties.Add("ErrorMessage", errorResponse.Message);
+                    requestLogEntry.Properties.Add("StackTrace", errorResponse.StackTrace);
                 }
 
                 var ex = response as Exception;
-                requestLogEntry.Properties.Add("Error", ex);
+                if(ex != null)  
+                    requestLogEntry.Exception = ex.ToString();
             }
-            foreach(var kvPair in AppendProperties?.Invoke(request, requestDto, response, requestDuration).Safe())
+
+            if (AppendProperties != null)
             {
-                requestLogEntry.Properties.GetOrAdd(kvPair.Key, key => kvPair.Value);
+                foreach (var kvPair in AppendProperties?.Invoke(request, requestDto, response, requestDuration).Safe())
+                {
+                    requestLogEntry.Properties.GetOrAdd(kvPair.Key, key => kvPair.Value);
+                }
             }
+
             return requestLogEntry;
         }
 
@@ -171,13 +203,5 @@ namespace ServiceStack.Seq.RequestLogsFeature
                    && requestType != null
                    && ExcludeRequestDtoTypes.Contains(requestType);
         }
-
-        public List<RequestLogEntry> GetLatestLogs(int? take)
-        {
-            // use seq browser for reading logs
-            throw new NotSupportedException($"use seq browser {settings.GetUrl()} for reading logs");
-        }
-
-        public Type[] HideRequestBodyForRequestDtoTypes { get; set; }
     }
 }

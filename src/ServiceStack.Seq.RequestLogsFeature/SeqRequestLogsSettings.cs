@@ -14,12 +14,13 @@ namespace ServiceStack.Seq.RequestLogsFeature
     {
         private readonly Validator validator = new Validator();
 
-        private readonly List<Type> excludeRequestDtoTypes = new List<Type>(new[] { typeof(RequestLogs) });
+        private readonly List<Type> excludeRequestDtoTypes =
+            new List<Type>(new[] { typeof(RequestLogs) });
 
         private readonly List<Type> hideRequestBodyForRequestDtoTypes =
             new List<Type>(new[] { typeof(Authenticate), typeof(Register) });
 
-        private readonly List<string> requiredRoles = new List<string>(); 
+        private readonly List<string> requiredRoles = new List<string>();
 
         private string url;
 
@@ -39,7 +40,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
 
         private RawLogEvent rawLogEvent;
 
-        private Func<IRequest, object, object, TimeSpan, Dictionary<string, object>> appendProperties;
+        private PropertyAppender appendProperties;
 
         public SeqRequestLogsSettings(string url)
         {
@@ -47,7 +48,17 @@ namespace ServiceStack.Seq.RequestLogsFeature
             validator.ValidateAndThrow(this);
         }
 
-        public delegate void RawLogEvent(IRequest request, object requestDto, object response, TimeSpan requestDuration);
+        public delegate void RawLogEvent(
+            IRequest request, 
+            object requestDto, 
+            object response, 
+            TimeSpan requestDuration);
+
+        public delegate Dictionary<string, object> PropertyAppender(
+            IRequest request,
+            object requestDto,
+            object response,
+            TimeSpan SoapDuration);
 
         /// <summary>
         /// The seq server url to log to
@@ -88,18 +99,27 @@ namespace ServiceStack.Seq.RequestLogsFeature
         /// <summary>
         /// Change the RequestLogger provider. Default is SeqRequestLogger
         /// </summary>
+        /// <param name="logger"> the request logger to use</param>
         public SeqRequestLogsSettings UseCustomLogger(IRequestLogger logger)
         {
             this.logger = logger;
             return this;
         }
 
-        public SeqRequestLogsSettings AppendProperties(Func<IRequest, object, object, TimeSpan, Dictionary<string, object>> appendProperties)
+        /// <summary>
+        /// Adds custom properties to each log event
+        /// </summary>
+        /// <param name="appender">the property appender delegate</param>
+        /// <returns></returns>
+        public SeqRequestLogsSettings AppendProperties(PropertyAppender appender)
         {
-            this.appendProperties = appendProperties;
+            this.appendProperties = appender;
             return this;
         }
-
+        
+        /// <summary>
+        /// Enables the request logging
+        /// </summary>
         public SeqRequestLogsSettings Enabled(bool enable = true)
         {
             this.enabled = enable;
@@ -180,10 +200,12 @@ namespace ServiceStack.Seq.RequestLogsFeature
             this.hideRequestBodyForRequestDtoTypes.Clear();
             return this;
         }
-        internal Func<IRequest, object, object, TimeSpan, Dictionary<string, object>> GetAppendProperties()
+
+        internal PropertyAppender GetAppendProperties()
         {
             return appendProperties;
         }
+
         internal string GetUrl()
         {
             validator.ValidateAndThrow(this);

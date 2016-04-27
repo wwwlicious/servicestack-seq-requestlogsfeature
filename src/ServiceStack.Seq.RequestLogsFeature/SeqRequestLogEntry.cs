@@ -24,5 +24,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         public Dictionary<string, object> Properties { get; }
 
         public string MessageTemplate { get; set; }
+
+        public string Exception { get; set; }
     }
 }
