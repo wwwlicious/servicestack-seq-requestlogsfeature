@@ -16,8 +16,9 @@ The package is available from nuget.org
 # Requirements
 
 You must have an instance of seq server to post to. You can download and install a copy of Seq [here](http://getseq.net).
+>Out of the box, Seq includes a **free single-user license** without authentication support.
 
-Check if you have it running locally on the default port [http://localhost:5341](http://localhost:5341)
+Once you have it installed, you can check it is running locally on the default port [http://localhost:5341](http://localhost:5341)
 
 # Quick Start
 
@@ -87,5 +88,10 @@ client.Send(request);
 
 
 ### Logging in action
+
+Once you start your `AppHost`, every request will be now logged to seq using the default options or the options you provided.
+Logging levels are colour coded and depending on your settings, the full requestDto's and even responseDto's are available to search.
+
+In the default view, you will see the list of requests which can be expanded by clicking on each row.
 
 ![Seq Request Logs](assets/Seq.png)
