@@ -117,15 +117,14 @@ namespace ServiceStack.Seq.RequestLogsFeature
             TimeSpan requestDuration,
             Type requestType)
         {
-            var totalMilliseconds = Math.Round(requestDuration.TotalMilliseconds, MidpointRounding.AwayFromZero);
-
             var requestLogEntry = new SeqRequestLogEntry();
             requestLogEntry.Timestamp = DateTime.UtcNow.ToString("o");
             requestLogEntry.MessageTemplate = "HTTP {HttpMethod} {PathInfo} responded {StatusCode} in {ElapsedMilliseconds}ms";
             requestLogEntry.Properties.Add("IsRequestLog", "True"); // Used for filtering requests easily
             requestLogEntry.Properties.Add("SourceContext", "ServiceStack.Seq.RequestLogsFeature");
-            requestLogEntry.Properties.Add("ElapsedMilliseconds", (totalMilliseconds == 0) ? requestDuration.TotalMilliseconds : totalMilliseconds);
+            requestLogEntry.Properties.Add("ElapsedMilliseconds", requestDuration.TotalMilliseconds);
             requestLogEntry.Properties.Add("RequestCount", Interlocked.Increment(ref requestId).ToString());
+            requestLogEntry.Properties.Add("ServiceName", HostContext.AppHost.ServiceName);
 
             if (request != null)
             {
@@ -177,6 +176,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
                                             && errorResponse.StatusCode < HttpStatusCode.InternalServerError
                                                 ? "Warning"
                                                 : "Error";
+                    requestLogEntry.Properties["StatusCode"] = (int)errorResponse.StatusCode;
                     requestLogEntry.Properties.Add("ErrorCode", errorResponse.ErrorCode);
                     requestLogEntry.Properties.Add("ErrorMessage", errorResponse.Message);
                     requestLogEntry.Properties.Add("StackTrace", errorResponse.StackTrace);
