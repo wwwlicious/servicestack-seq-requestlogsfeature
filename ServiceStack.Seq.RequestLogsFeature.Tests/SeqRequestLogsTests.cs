@@ -53,7 +53,9 @@ namespace ServiceStack.Seq.RequestLogsFeature.Tests
             var client = host.GetClient();
             var requestDto = new Hello("Phil");
 
-            client.Send(requestDto);
+            var response = client.Send(requestDto);
+
+            response.Greeting.Should().Be("Hello Phil");
 
             var customLogs = host.CustomLogs.Last();
             customLogs.RequestDto.Should().BeOfType<Hello>().Which.Name.Should().Be("Phil");

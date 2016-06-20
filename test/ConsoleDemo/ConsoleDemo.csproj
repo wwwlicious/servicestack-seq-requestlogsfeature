@@ -60,10 +60,6 @@
       <HintPath>..\..\packages\ServiceStack.OrmLite.4.0.60\lib\net45\ServiceStack.OrmLite.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="ServiceStack.OrmLite.SqlServer, Version=4.0.56.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\ServiceStack.OrmLite.SqlServer.4.0.56\lib\net45\ServiceStack.OrmLite.SqlServer.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="ServiceStack.Redis, Version=4.0.60.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\ServiceStack.Redis.4.0.60\lib\net40\ServiceStack.Redis.dll</HintPath>
       <Private>True</Private>
