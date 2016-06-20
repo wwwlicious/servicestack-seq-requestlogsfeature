@@ -18,6 +18,7 @@ namespace ConsoleDemo
         }
     }
 
+    [Route("/hello/{Name}")]
     public class Hello : IReturn<HelloResponse>, IGet
     {
         public Hello(string name)
