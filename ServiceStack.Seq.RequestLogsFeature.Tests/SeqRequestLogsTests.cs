@@ -48,6 +48,7 @@ namespace ServiceStack.Seq.RequestLogsFeature.Tests
         }
 
         [Fact]
+        [Trait("Category", "Local")]
         public void CanCallLog()
         {
             var client = host.GetClient();
@@ -63,6 +64,7 @@ namespace ServiceStack.Seq.RequestLogsFeature.Tests
         }
 
         [Fact]
+        [Trait("Category", "Local")]
         public void GenerateLogData()
         {
             var client = host.GetClient();
