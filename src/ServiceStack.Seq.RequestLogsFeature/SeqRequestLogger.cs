@@ -163,7 +163,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
             {
                 if (EnableResponseTracking)
                 {
-                    requestLogEntry.Properties.Add("ResponseDto", request?.Response?.Dto);
+                    requestLogEntry.Properties.Add("ResponseDto", response);
                 }
             }
             else if (EnableErrorTracking)
