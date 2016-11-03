@@ -134,8 +134,6 @@ namespace ServiceStack.Seq.RequestLogsFeature
                 requestLogEntry.Properties.Add("IpAddress", request.UserHostAddress);
                 requestLogEntry.Properties.Add("ForwardedFor", request.Headers[HttpHeaders.XForwardedFor]);
                 requestLogEntry.Properties.Add("Referer", request.Headers[HttpHeaders.Referer]);
-                requestLogEntry.Properties.Add("UserAuthId", request.GetItemOrCookie(HttpHeaders.XUserAuthId));
-                requestLogEntry.Properties.Add("SessionId", request.GetSessionId());
                 requestLogEntry.Properties.Add("Session", EnableSessionTracking ? request.GetSession(false) : null);
                 requestLogEntry.Properties.Add("Items", request.Items.WithoutDuplicates());
                 requestLogEntry.Properties.Add("StatusCode", request.Response?.StatusCode);
@@ -143,6 +141,13 @@ namespace ServiceStack.Seq.RequestLogsFeature
                 requestLogEntry.Properties.Add("ResponseStatus", request.Response?.GetResponseStatus());
             }
 
+            var isClosed = request.Response.IsClosed;
+            if (!isClosed)
+            {
+                requestLogEntry.Properties.Add("UserAuthId", request.GetItemOrCookie(HttpHeaders.XUserAuthId));
+                requestLogEntry.Properties.Add("SessionId", request.GetSessionId());
+            }
+            
             if (HideRequestBodyForRequestDtoTypes != null
                 && requestType != null
                 && !HideRequestBodyForRequestDtoTypes.Contains(requestType))
@@ -150,7 +155,10 @@ namespace ServiceStack.Seq.RequestLogsFeature
                 requestLogEntry.Properties.Add("RequestDto", requestDto);
                 if (request != null)
                 {
-                    requestLogEntry.Properties.Add("FormData", request.FormData.ToDictionary());
+                    if (!isClosed)
+                    {
+                        requestLogEntry.Properties.Add("FormData", request.FormData.ToDictionary());
+                    }
 
                     if (EnableRequestBodyTracking)
                     {
