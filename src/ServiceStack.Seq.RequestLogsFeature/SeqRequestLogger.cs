@@ -16,31 +16,16 @@ namespace ServiceStack.Seq.RequestLogsFeature
 
     public class SeqRequestLogger : IRequestLogger
     {
-        private readonly SeqRequestLogsSettings settings;
+        private readonly SeqRequestLogsFeature feature;
 
         private static int requestId;
 
         private readonly string eventsUri;
 
-        private readonly string apiKey;
-
-        public SeqRequestLogger(SeqRequestLogsSettings settings)
+        public SeqRequestLogger(SeqRequestLogsFeature feature)
         {
-            this.settings = settings;
-
-            // set interface props, custom props are access via settings
-            Enabled = settings.GetEnabled();
-            EnableErrorTracking = settings.GetEnableErrorTracking();
-            EnableRequestBodyTracking = settings.GetEnableRequestBodyTracking();
-            EnableResponseTracking = settings.GetEnableResponseTracking();
-            EnableSessionTracking = settings.GetEnableSessionTracking();
-            ExcludeRequestDtoTypes = settings.GetExcludeRequestDtoTypes();
-            HideRequestBodyForRequestDtoTypes = settings.GetHideRequestBodyForRequestDtoTypes();
-            RequiredRoles = settings.GetRequiredRoles();
-            AppendProperties = settings.GetAppendProperties();
-
-            eventsUri = $"{settings.GetUrl()}/api/events/raw";
-            apiKey = settings.GetApiKey();
+            this.feature = feature;
+            eventsUri = $"{feature.SeqUrl}/api/events/raw";
         }
 
         private void BufferedLogEntries(SeqRequestLogEntry entry)
@@ -53,40 +38,76 @@ namespace ServiceStack.Seq.RequestLogsFeature
                     new SeqLogRequest(entry),
                     webRequest =>
                         {
-                            if(!string.IsNullOrWhiteSpace(apiKey))
-                                webRequest.Headers.Add("X-Seq-ApiKey", apiKey);
+                            if(!string.IsNullOrWhiteSpace(feature.ApiKey))
+                                webRequest.Headers.Add("X-Seq-ApiKey", feature.ApiKey);
                         });
             }
         }
 
-        public bool Enabled { get; set; }
+        public bool Enabled
+        {
+            get { return feature.Enabled; }
+            set { feature.Enabled = value; }
+        }
 
-        public bool EnableSessionTracking { get; set; }
+        public bool EnableSessionTracking
+        {
+            get { return feature.EnableSessionTracking; }
+            set { feature.EnableSessionTracking = value; }
+        }
 
-        public bool EnableRequestBodyTracking { get; set; }
+        public bool EnableRequestBodyTracking
+        {
+            get { return feature.EnableRequestBodyTracking; }
+            set { feature.EnableRequestBodyTracking = value; }
+        }
 
-        public bool EnableResponseTracking { get; set; }
+        public bool EnableResponseTracking
+        {
+            get { return feature.EnableResponseTracking; }
+            set { feature.EnableResponseTracking = value; }
+        }
 
-        public bool EnableErrorTracking { get; set; }
-        
-        public string[] RequiredRoles { get; set; }
+        public bool EnableErrorTracking
+        {
+            get { return feature.EnableErrorTracking; }
+            set { feature.EnableErrorTracking = value; }
+        }
 
-        public Type[] ExcludeRequestDtoTypes { get; set; }
+        public string[] RequiredRoles
+        {
+            get { return feature.RequiredRoles?.ToArray(); }
+            set { feature.RequiredRoles = value?.ToList(); }
+        }
 
-        public Type[] HideRequestBodyForRequestDtoTypes { get; set; }
+        public Type[] ExcludeRequestDtoTypes
+        {
+            get { return feature.ExcludeRequestDtoTypes?.ToArray(); }
+            set { feature.ExcludeRequestDtoTypes = value?.ToList(); }
+        }
+
+        public Type[] HideRequestBodyForRequestDtoTypes
+        {
+            get { return feature.HideRequestBodyForRequestDtoTypes?.ToArray(); }
+            set { feature.HideRequestBodyForRequestDtoTypes = value?.ToList(); }
+        }
 
         /// <summary>
         /// Input: request, requestDto, response, requestDuration
         /// Output: List of Properties to append to Seq Log entry
         /// </summary>
-        public SeqRequestLogsSettings.PropertyAppender AppendProperties { get; set; }
+        public SeqRequestLogsFeature.PropertyAppender AppendProperties
+        {
+            get { return feature.AppendProperties; }
+            set { feature.AppendProperties = value; }
+        }
 
         public void Log(IRequest request, object requestDto, object response, TimeSpan requestDuration)
         {
             try
             {
                 // bypasses all flags to run raw log event delegate if configured
-                settings.GetRawLogEvent()?.Invoke(request, requestDto, response, requestDuration);
+                feature.RawEventLogger?.Invoke(request, requestDto, response, requestDuration);
 
                 if (!Enabled) return;
 
@@ -107,7 +128,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         public List<RequestLogEntry> GetLatestLogs(int? take)
         {
             // use seq browser for reading logs
-            throw new NotSupportedException($"use seq browser {settings.GetUrl()} for reading logs");
+            throw new NotSupportedException($"use seq browser {feature.SeqUrl} for reading logs");
         }
 
         protected SeqRequestLogEntry CreateEntry(

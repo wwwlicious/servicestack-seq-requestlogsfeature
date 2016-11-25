@@ -6,41 +6,39 @@ namespace ServiceStack.Seq.RequestLogsFeature
     using System;
     using System.Collections.Generic;
 
-    using ServiceStack.Admin;
     using ServiceStack.FluentValidation;
     using ServiceStack.Web;
 
+    [Obsolete("Use public properties of SeqRequestLogsFeature instead of explicit Settings object")]
     public class SeqRequestLogsSettings
     {
         private readonly Validator validator = new Validator();
 
-        private readonly List<Type> excludeRequestDtoTypes =
-            new List<Type>(new[] { typeof(RequestLogs) });
+        private readonly List<Type> excludeRequestDtoTypes;
 
-        private readonly List<Type> hideRequestBodyForRequestDtoTypes =
-            new List<Type>(new[] { typeof(Authenticate), typeof(Register) });
+        private readonly List<Type> hideRequestBodyForRequestDtoTypes;
 
-        private readonly List<string> requiredRoles = new List<string>();
+        private readonly List<string> requiredRoles;
 
         private string url;
 
         private string apiKey;
 
-        private bool enabled = true;
+        private bool? enabled;
 
-        private bool enableErrorTracking = true;
+        private bool? enableErrorTracking;
 
-        private bool enableRequestBodyTracking;
+        private bool? enableRequestBodyTracking;
 
-        private bool enableSessionTracking;
+        private bool? enableSessionTracking;
 
-        private bool enableResponseTracking;
+        private bool? enableResponseTracking;
 
         private IRequestLogger logger;
 
-        private RawLogEvent rawLogEvent;
+        private SeqRequestLogsFeature.RawLogEvent rawLogEvent;
 
-        private PropertyAppender appendProperties;
+        private SeqRequestLogsFeature.PropertyAppender appendProperties;
 
         public SeqRequestLogsSettings(string url)
         {
@@ -48,21 +46,10 @@ namespace ServiceStack.Seq.RequestLogsFeature
             validator.ValidateAndThrow(this);
         }
 
-        public delegate void RawLogEvent(
-            IRequest request, 
-            object requestDto, 
-            object response, 
-            TimeSpan requestDuration);
-
-        public delegate Dictionary<string, object> PropertyAppender(
-            IRequest request,
-            object requestDto,
-            object response,
-            TimeSpan SoapDuration);
-
         /// <summary>
         /// The seq server url to log to
         /// </summary>
+        [Obsolete("Use SeqRequestLogsFeature.SeqUrl property")]
         public SeqRequestLogsSettings Url(string url)
         {
             this.url = url;
@@ -72,6 +59,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         /// <summary>
         /// Optional seq api key for logging
         /// </summary>
+        [Obsolete("Use SeqRequestLogsFeature.ApiKey property")]
         public SeqRequestLogsSettings ApiKey(string apiKey)
         {
             this.apiKey = apiKey;
@@ -81,7 +69,8 @@ namespace ServiceStack.Seq.RequestLogsFeature
         /// <summary>
         /// Tap into log events stream, still called even if disabled from Seq Logging 
         /// </summary>
-        public SeqRequestLogsSettings AddLogEvent(RawLogEvent rawLogEvent)
+        [Obsolete("Use SeqRequestLogsFeature.RawEventLogger property")]
+        public SeqRequestLogsSettings AddLogEvent(SeqRequestLogsFeature.RawLogEvent rawLogEvent)
         {
             this.rawLogEvent = rawLogEvent;
             return this;
@@ -90,6 +79,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         /// <summary>
         /// Controls access to Config Service for setting logging options at runtime
         /// </summary>
+        [Obsolete("Use SeqRequestLogsFeature.RequiredRoles property")]
         public SeqRequestLogsSettings RequiredRoles(params string[] role)
         {
             requiredRoles.AddRange(role);
@@ -100,6 +90,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         /// Change the RequestLogger provider. Default is SeqRequestLogger
         /// </summary>
         /// <param name="logger"> the request logger to use</param>
+        [Obsolete("Use SeqRequestLogsFeature.Logger property")]
         public SeqRequestLogsSettings UseCustomLogger(IRequestLogger logger)
         {
             this.logger = logger;
@@ -111,15 +102,17 @@ namespace ServiceStack.Seq.RequestLogsFeature
         /// </summary>
         /// <param name="appender">the property appender delegate</param>
         /// <returns></returns>
-        public SeqRequestLogsSettings AppendProperties(PropertyAppender appender)
+        [Obsolete("Use SeqRequestLogsFeature.AppendProperties property")]
+        public SeqRequestLogsSettings AppendProperties(SeqRequestLogsFeature.PropertyAppender appender)
         {
             this.appendProperties = appender;
             return this;
         }
-        
+
         /// <summary>
         /// Enables the request logging
         /// </summary>
+        [Obsolete("Use SeqRequestLogsFeature.Enabled property")]
         public SeqRequestLogsSettings Enabled(bool enable = true)
         {
             this.enabled = enable;
@@ -129,6 +122,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         /// <summary>
         /// Turn On/Off Tracking of Exceptions
         /// </summary>
+        [Obsolete("Use SeqRequestLogsFeature.EnableErrorTracking property")]
         public SeqRequestLogsSettings EnableErrorTracking(bool enable = true)
         {
             this.enableErrorTracking = enable;
@@ -138,6 +132,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         /// <summary>
         /// Turn On/Off Session Tracking
         /// </summary>
+        [Obsolete("Use SeqRequestLogsFeature.EnableSessionTracking property")]
         public SeqRequestLogsSettings EnableSessionTracking(bool enable = true)
         {
             this.enableSessionTracking = enable;
@@ -147,6 +142,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         /// <summary>
         /// Turn On/Off Logging of Raw Request Body, default is Off
         /// </summary>
+        [Obsolete("Use SeqRequestLogsFeature.EnableRequestBodyTracking property")]
         public SeqRequestLogsSettings EnableRequestBodyTracking(bool enable = true)
         {
             this.enableRequestBodyTracking = enable;
@@ -156,6 +152,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         /// <summary>
         /// Turn On/Off Tracking of Responses
         /// </summary>
+        [Obsolete("Use SeqRequestLogsFeature.EnableResponseTracking property")]
         public SeqRequestLogsSettings EnableResponseTracking(bool enable = true)
         {
             this.enableResponseTracking = enable;
@@ -165,6 +162,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         /// <summary>
         /// Don't log requests of these types. By default RequestLog's are excluded
         /// </summary>
+        [Obsolete("Use SeqRequestLogsFeature.ExcludeRequestDtoTypes property")]
         public SeqRequestLogsSettings ExcludeRequestDtoTypes(params Type[] types)
         {
             this.excludeRequestDtoTypes.AddRange(types);
@@ -175,6 +173,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         /// Removes the default excluded requestDto types
         /// Will log calls to RequestLog
         /// </summary>
+        [Obsolete("Use SeqRequestLogsFeature.ExcludeRequestDtoTypes.Clear()")]
         public SeqRequestLogsSettings ClearExcludeRequestDtoTypes()
         {
             this.excludeRequestDtoTypes.Clear();
@@ -185,6 +184,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         /// Don't log request bodys for services with sensitive information.
         /// By default Auth and Registration requests are hidden.
         /// </summary>
+        [Obsolete("Use SeqRequestLogsFeature.HideRequestBodyForRequestDtoTypes property")]
         public SeqRequestLogsSettings HideRequestBodyForRequestDtoTypes(params Type[] types)
         {
             this.hideRequestBodyForRequestDtoTypes.AddRange(types);
@@ -195,81 +195,43 @@ namespace ServiceStack.Seq.RequestLogsFeature
         /// Removes the default dto types for hiding the requestbody
         /// Will potentially log sensitive information from Authenticate and Registration dto's
         /// </summary>
+        [Obsolete("Use SeqRequestLogsFeature.HideRequestBodyForRequestDtoTypes.Clear()")]
         public SeqRequestLogsSettings ClearHideRequestBodyForRequestDtoTypes()
         {
             this.hideRequestBodyForRequestDtoTypes.Clear();
             return this;
         }
 
-        internal PropertyAppender GetAppendProperties()
+        internal void PopulateProperties(SeqRequestLogsFeature feature)
         {
-            return appendProperties;
-        }
+            if (!string.IsNullOrWhiteSpace(apiKey)) feature.ApiKey = apiKey;
 
-        internal string GetUrl()
-        {
-            validator.ValidateAndThrow(this);
-            return url;
-        }
+            if (!string.IsNullOrWhiteSpace(url)) feature.SeqUrl = url;
 
-        internal IRequestLogger GetLogger()
-        {
-            return logger ?? new SeqRequestLogger(this);
-        }
+            if (appendProperties != null) feature.AppendProperties = appendProperties;
 
-        internal string GetApiKey()
-        {
-            return apiKey;
-        }
+            if (enabled.HasValue) feature.Enabled = enabled.Value;
 
-        internal string[] GetRequiredRoles()
-        {
-            return requiredRoles.ToArray();
-        }
+            if (enableErrorTracking.HasValue) feature.EnableErrorTracking = enableErrorTracking.Value;
 
-        internal bool GetEnabled()
-        {
-            return enabled;
-        }
+            if (enableRequestBodyTracking.HasValue) feature.EnableRequestBodyTracking = enableRequestBodyTracking.Value;
 
-        internal bool GetEnableSessionTracking()
-        {
-            return enableSessionTracking;
-        }
+            if (enableResponseTracking.HasValue) feature.EnableResponseTracking = enableResponseTracking.Value;
 
-        internal bool GetEnableResponseTracking()
-        {
-            return enableResponseTracking;
-        }
+            if (enableSessionTracking.HasValue) feature.EnableSessionTracking = enableSessionTracking.Value;
 
-        internal bool GetEnableRequestBodyTracking()
-        {
-            return enableRequestBodyTracking;
-        }
+            if (!excludeRequestDtoTypes.IsNullOrEmpty()) feature.ExcludeRequestDtoTypes = excludeRequestDtoTypes;
 
-        internal bool GetEnableErrorTracking()
-        {
-            return enableErrorTracking;
-        }
+            if (!hideRequestBodyForRequestDtoTypes.IsNullOrEmpty())
+                feature.HideRequestBodyForRequestDtoTypes = hideRequestBodyForRequestDtoTypes;
 
-        internal Type[] GetExcludeRequestDtoTypes()
-        {
-            return excludeRequestDtoTypes.ToArray();
-        }
+            if (!requiredRoles.IsNullOrEmpty()) feature.RequiredRoles = requiredRoles;
 
-        internal Type[] GetHideRequestBodyForRequestDtoTypes()
-        {
-            return hideRequestBodyForRequestDtoTypes.ToArray();
-        }
+            if (logger != null) feature.Logger = logger;
 
-        /// <summary>
-        /// Tap into log events stream, still called even if disabled from Seq Logging 
-        /// </summary>
-        internal RawLogEvent GetRawLogEvent()
-        {
-            return rawLogEvent;
+            if (rawLogEvent != null) feature.RawEventLogger = rawLogEvent;
         }
-
+        
         private class Validator : AbstractValidator<SeqRequestLogsSettings>
         {
             public Validator()
