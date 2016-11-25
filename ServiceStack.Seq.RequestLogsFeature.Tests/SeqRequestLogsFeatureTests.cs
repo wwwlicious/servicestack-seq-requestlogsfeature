@@ -184,7 +184,7 @@
             var list = new List<string> { "foo", "bar" };
 
             GetFeature().RequiredRoles = list;
-            CallTo(() => settings.Set(ConfigKeys.RequiredRoles, list)).MustHaveHappened();
+            CallTo(() => settings.Set(ConfigKeys.RequiredRoles, string.Join(",", list))).MustHaveHappened();
         }
     }
 }

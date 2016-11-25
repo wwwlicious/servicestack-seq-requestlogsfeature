@@ -37,7 +37,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         public List<string> RequiredRoles
         {
             get { return appSettings.GetList(ConfigKeys.RequiredRoles)?.ToList(); }
-            set { appSettings.Set(ConfigKeys.RequiredRoles, value); }
+            set { appSettings.Set(ConfigKeys.RequiredRoles, string.Join(",", value)); }
         }
 
         public string SeqUrl
