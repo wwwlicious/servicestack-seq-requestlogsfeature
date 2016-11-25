@@ -35,7 +35,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
                     logger.EnableResponseTracking = req.EnableResponseTracking.Value;
                 else
                 {
-                    if (HostContext.GetPlugin<SeqRequestLogsFeature>().Settings.GetEnableResponseTracking())
+                    if (HostContext.GetPlugin<SeqRequestLogsFeature>().EnableResponseTracking)
                     {
                         logger.EnableResponseTracking = true;
                     }
