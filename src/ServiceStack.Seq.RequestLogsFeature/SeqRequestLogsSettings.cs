@@ -14,11 +14,11 @@ namespace ServiceStack.Seq.RequestLogsFeature
     {
         private readonly Validator validator = new Validator();
 
-        private readonly List<Type> excludeRequestDtoTypes;
+        private readonly List<Type> excludeRequestDtoTypes = new List<Type>();
 
-        private readonly List<Type> hideRequestBodyForRequestDtoTypes;
+        private readonly List<Type> hideRequestBodyForRequestDtoTypes = new List<Type>();
 
-        private readonly List<string> requiredRoles;
+        private readonly List<string> requiredRoles = new List<string>();
 
         private string url;
 
