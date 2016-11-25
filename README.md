@@ -22,7 +22,7 @@ Once you have it installed, you can check it is running locally on the default p
 
 # Quick Start
 
-In your `AppHost` class `Configure` method, add the plugin. By default configuration values are read from the registered `IAppSettings` instance. Alternatively configuration options are exposed as public properties of the feature class.
+In your `AppHost` class `Configure` method, add the plugin. By default configuration values are read from the registered `IAppSettings` instance. Alternatively all configuration options are exposed as public properties of the feature class.
 
 ```csharp
 public override void Configure(Container container)
@@ -30,7 +30,7 @@ public override void Configure(Container container)
     // Basic setup. All config read from AppSettings
     Plugins.Add(new SeqRequestLogsFeature());
 
-	// Register plugin, setting optional params via object initialiser
+	// Register plugin, setting optional properties via object initialiser
     Plugins.Add(new SeqRequestLogsFeature
     {
         // add additional properties to Seq log entry.
@@ -52,7 +52,7 @@ public override void Configure(Container container)
 | EnableSessionTracking | Default False | servicestack.seq.requestlogs.sessiontracking.enabled|
 | EnableResponseTracking | Default False | servicestack.seq.requestlogs.responsetracking.enabled|
 | AppendProperties | Add additional properties to log | N/A|
-| RawEventLogger | Delegate for custom loggin | responsetracking.enabled|
+| RawEventLogger | Delegate for custom logging | responsetracking.enabled|
 | Logger | Swap out seq logger for custom implementation | responsetracking.enabled|
 | RequiredRoles | Restrict the runtime configuration to specific roles | servicestack.seq.requestlogs.requiredroles|
 | HideRequestBodyForRequestDtoTypes | Type exclusions for body request logging | N/A|
