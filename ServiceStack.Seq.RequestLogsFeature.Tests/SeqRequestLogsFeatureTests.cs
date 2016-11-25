@@ -14,6 +14,7 @@
     {
         private readonly IAppSettings settings;
         private readonly IAppHost appHost;
+        private const string Url = "http://8.8.8.8:1234";
 
         public SeqRequestLogsFeatureTests()
         {
@@ -22,6 +23,7 @@
             appHost = Fake<IAppHost>();
             CallTo(() => appHost.PreRequestFilters).Returns(new List<Action<IRequest, IResponse>>());
             CallTo(() => appHost.AppSettings).Returns(settings);
+            CallTo(() => settings.GetString(ConfigKeys.SeqUrl)).Returns(Url);
         }
 
         private SeqRequestLogsFeature GetFeature()
@@ -34,20 +36,17 @@
         [Fact]
         public void SeqUrl_Get_GetsFromAppSettings()
         {
-            const string url = "http://8.8.8.8:1234";
-            CallTo(() => settings.GetString(ConfigKeys.SeqUrl)).Returns(url);
+            CallTo(() => settings.GetString(ConfigKeys.SeqUrl)).Returns(Url);
 
-            GetFeature().SeqUrl.Should().Be(url);
+            GetFeature().SeqUrl.Should().Be(Url);
             CallTo(() => settings.GetString(ConfigKeys.SeqUrl)).MustHaveHappened();
         }
 
         [Fact]
         public void SeqUrl_Set_SetsInAppSettings()
         {
-            const string url = "http://8.8.8.8:1234";
-
-            GetFeature().SeqUrl = url;
-            CallTo(() => settings.Set(ConfigKeys.SeqUrl, url)).MustHaveHappened();
+            GetFeature().SeqUrl = Url;
+            CallTo(() => settings.Set(ConfigKeys.SeqUrl, Url)).MustHaveHappened();
         }
 
         [Fact]
@@ -167,6 +166,25 @@
         {
             GetFeature().EnableResponseTracking = enabled;
             CallTo(() => settings.Set(ConfigKeys.EnableResponseTracking, enabled)).MustHaveHappened();
+        }
+        
+        [Fact]
+        public void RequiredRoles_Get_GetsFromAppSettings()
+        {
+            var list = new List<string> { "foo", "bar" };
+            CallTo(() => settings.GetList(ConfigKeys.RequiredRoles)).Returns(list);
+
+            GetFeature().RequiredRoles.Should().BeEquivalentTo(list);
+            CallTo(() => settings.GetList(ConfigKeys.RequiredRoles)).MustHaveHappened();
+        }
+
+        [Fact]
+        public void RequiredRoles_Set_SetsInAppSettings()
+        {
+            var list = new List<string> { "foo", "bar" };
+
+            GetFeature().RequiredRoles = list;
+            CallTo(() => settings.Set(ConfigKeys.RequiredRoles, list)).MustHaveHappened();
         }
     }
 }
