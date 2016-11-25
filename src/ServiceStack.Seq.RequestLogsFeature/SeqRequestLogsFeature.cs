@@ -5,14 +5,17 @@ namespace ServiceStack.Seq.RequestLogsFeature
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Admin;
     using Configuration;
+    using FluentValidation;
+    using Validators;
     using Web;
 
     public class SeqRequestLogsFeature : IPlugin
     {
         private IAppSettings appSettings;
-
+        private readonly ConfigValidator configValidator = new ConfigValidator();
         private readonly SeqRequestLogsSettings featureSettings;
 
         public SeqRequestLogsFeature()
@@ -26,17 +29,25 @@ namespace ServiceStack.Seq.RequestLogsFeature
             featureSettings = settings;
         }
 
-        public List<Type> ExcludeRequestDtoTypes { get; set; } = new List<Type>(new[] { typeof(RequestLogs) });
+        public IEnumerable<Type> ExcludeRequestDtoTypes { get; set; } = new List<Type>(new[] { typeof(RequestLogs) });
 
-        public List<Type> HideRequestBodyForRequestDtoTypes { get; set; } =
+        public IEnumerable<Type> HideRequestBodyForRequestDtoTypes { get; set; } =
             new List<Type>(new[] { typeof(Authenticate), typeof(Register) });
 
-        public List<string> RequiredRoles { get; set; } = new List<string>();
+        public List<string> RequiredRoles
+        {
+            get { return appSettings.GetList(ConfigKeys.RequiredRoles)?.ToList(); }
+            set { appSettings.Set(ConfigKeys.RequiredRoles, value); }
+        }
 
         public string SeqUrl
         {
             get { return appSettings.GetString(ConfigKeys.SeqUrl); }
-            set { appSettings.Set(ConfigKeys.SeqUrl, value); }
+            set
+            {
+                appSettings.Set(ConfigKeys.SeqUrl, value);
+                configValidator.ValidateAndThrow(this);
+            }
         }
 
         public string ApiKey
@@ -80,6 +91,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         public RawLogEvent RawEventLogger { get; set; }
 
         private IRequestLogger logger;
+
         public IRequestLogger Logger
         {
             get { return logger = logger ?? new SeqRequestLogger(this); }
@@ -104,6 +116,8 @@ namespace ServiceStack.Seq.RequestLogsFeature
 
             // If there is a feature settings object, use it to populate Plugin settings
             featureSettings?.PopulateProperties(this);
+
+            configValidator.ValidateAndThrow(this);
 
             ConfigureRequestLogger(appHost);
             appHost.RegisterService(typeof(SeqRequestLogConfigService));

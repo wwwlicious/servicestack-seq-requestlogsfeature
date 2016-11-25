@@ -32,7 +32,17 @@ namespace ConsoleDemo
         {
             // Config examples
             Plugins.Add(new RequestCorrelationFeature());
-            Plugins.Add(
+            Plugins.Add(new SeqRequestLogsFeature
+            {
+                // add additional properties to Seq log entry.
+                AppendProperties =
+                    (request, dto, response, duration) =>
+                    new Dictionary<string, object> { { "NewCustomProperty", "42" } },
+                ExcludeRequestDtoTypes = new[] { typeof(SeqRequestLogConfig) }, // add your own type exclusions
+                HideRequestBodyForRequestDtoTypes = new[] { typeof(SeqRequestLogConfig) } // add your own exclusions for bodyrequest logging
+            });
+
+            /*Plugins.Add(
                 new SeqRequestLogsFeature(
                     new SeqRequestLogsSettings("http://localhost:5341") // required seq server url:port
 
@@ -58,7 +68,7 @@ namespace ConsoleDemo
                             (request, dto, response, duration) =>
                                 {
                                     // your custom log event
-                                })));
+                                })));*/
         }
     }
 

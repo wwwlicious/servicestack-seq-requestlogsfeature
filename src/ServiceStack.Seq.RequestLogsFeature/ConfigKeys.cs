@@ -2,14 +2,15 @@ namespace ServiceStack.Seq.RequestLogsFeature
 {
     public static class ConfigKeys
     {
-        private const string keyPrefix = "servicestack.seq.requestlogs.";
+        private const string KeyPrefix = "servicestack.seq.requestlogs.";
 
-        public static string SeqUrl => $"{keyPrefix}.seq.url";
-        public static string ApiKey => $"{keyPrefix}.seq.apikey";
-        public static string Enabled => $"{keyPrefix}.enabled";
-        public static string EnableErrorTracking => $"{keyPrefix}.errortracking.enabled";
-        public static string EnableRequestBodyTracking => $"{keyPrefix}.requestbodytracking.enabled";
-        public static string EnableSessionTracking => $"{keyPrefix}.sessiontracking.enabled";
-        public static string EnableResponseTracking => $"{keyPrefix}.responsetracking.enabled";
+        public static string SeqUrl => $"{KeyPrefix}seq.url";
+        public static string ApiKey => $"{KeyPrefix}seq.apikey";
+        public static string Enabled => $"{KeyPrefix}enabled";
+        public static string EnableErrorTracking => $"{KeyPrefix}errortracking.enabled";
+        public static string EnableRequestBodyTracking => $"{KeyPrefix}requestbodytracking.enabled";
+        public static string EnableSessionTracking => $"{KeyPrefix}sessiontracking.enabled";
+        public static string EnableResponseTracking => $"{KeyPrefix}responsetracking.enabled";
+        public static string RequiredRoles => $"{KeyPrefix}requiredroles";
     }
 }
