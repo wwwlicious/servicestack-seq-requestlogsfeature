@@ -6,10 +6,15 @@ namespace ServiceStack.Seq.RequestLogsFeature
     using System;
     using System.Collections.Generic;
     using Admin;
+    using Configuration;
     using Web;
 
     public class SeqRequestLogsFeature : IPlugin
     {
+        private IAppSettings appSettings;
+
+        private readonly SeqRequestLogsSettings featureSettings;
+
         public SeqRequestLogsFeature()
         {
         }
@@ -18,7 +23,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         public SeqRequestLogsFeature(SeqRequestLogsSettings settings)
         {
             // NOTE - this is to prevent breaking backwards compat.
-            settings.PopulateProperties(this);
+            featureSettings = settings;
         }
 
         public List<Type> ExcludeRequestDtoTypes { get; set; } = new List<Type>(new[] { typeof(RequestLogs) });
@@ -28,19 +33,47 @@ namespace ServiceStack.Seq.RequestLogsFeature
 
         public List<string> RequiredRoles { get; set; } = new List<string>();
 
-        public string SeqUrl { get; set; }
+        public string SeqUrl
+        {
+            get { return appSettings.GetString(ConfigKeys.SeqUrl); }
+            set { appSettings.Set(ConfigKeys.SeqUrl, value); }
+        }
 
-        public string ApiKey { get; set; }
+        public string ApiKey
+        {
+            get { return appSettings.GetString(ConfigKeys.ApiKey); }
+            set { appSettings.Set(ConfigKeys.ApiKey, value); }
+        }
 
-        public bool Enabled { get; set; } = true;
+        public bool Enabled
+        {
+            get { return appSettings.Get(ConfigKeys.Enabled, true); }
+            set { appSettings.Set(ConfigKeys.Enabled, value); }
+        }
 
-        public bool EnableErrorTracking { get; set; } = true;
+        public bool EnableErrorTracking
+        {
+            get { return appSettings.Get(ConfigKeys.EnableErrorTracking, true); }
+            set { appSettings.Set(ConfigKeys.EnableErrorTracking, value); }
+        }
 
-        public bool EnableRequestBodyTracking { get; set; }
+        public bool EnableRequestBodyTracking
+        {
+            get { return appSettings.Get<bool>(ConfigKeys.EnableRequestBodyTracking); }
+            set { appSettings.Set(ConfigKeys.EnableRequestBodyTracking, value); }
+        }
 
-        public bool EnableSessionTracking { get; set; }
+        public bool EnableSessionTracking
+        {
+            get { return appSettings.Get<bool>(ConfigKeys.EnableSessionTracking); }
+            set { appSettings.Set(ConfigKeys.EnableSessionTracking, value); }
+        }
 
-        public bool EnableResponseTracking { get; set; }
+        public bool EnableResponseTracking
+        {
+            get { return appSettings.Get<bool>(ConfigKeys.EnableResponseTracking); }
+            set { appSettings.Set(ConfigKeys.EnableResponseTracking, value); }
+        }
 
         public PropertyAppender AppendProperties { get; set; }
 
@@ -57,7 +90,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
             IRequest request,
             object requestDto,
             object response,
-            TimeSpan SoapDuration);
+            TimeSpan soapDuration);
 
         public delegate void RawLogEvent(
             IRequest request,
@@ -67,15 +100,12 @@ namespace ServiceStack.Seq.RequestLogsFeature
 
         public void Register(IAppHost appHost)
         {
-            var requestLogger = Logger;
-            requestLogger.EnableSessionTracking = EnableSessionTracking;
-            requestLogger.EnableResponseTracking = EnableResponseTracking;
-            requestLogger.EnableRequestBodyTracking = EnableRequestBodyTracking;
-            requestLogger.EnableErrorTracking = EnableErrorTracking;
-            requestLogger.ExcludeRequestDtoTypes = ExcludeRequestDtoTypes.ToArray();
-            requestLogger.HideRequestBodyForRequestDtoTypes = HideRequestBodyForRequestDtoTypes.ToArray();
+            appSettings = appHost.AppSettings ?? new AppSettings();
 
-            appHost.Register(requestLogger);
+            // If there is a feature settings object, use it to populate Plugin settings
+            featureSettings?.PopulateProperties(this);
+
+            ConfigureRequestLogger(appHost);
             appHost.RegisterService(typeof(SeqRequestLogConfigService));
             if (EnableRequestBodyTracking)
             {
@@ -88,6 +118,19 @@ namespace ServiceStack.Seq.RequestLogsFeature
             appHost.GetPlugin<MetadataFeature>()
                 .AddDebugLink(SeqUrl, "Seq Request Logs")
                 .AddPluginLink("/SeqRequestLogConfig", "Seq IRequestLogger Configuration");
+        }
+
+        private void ConfigureRequestLogger(IAppHost appHost)
+        {
+            var requestLogger = Logger;
+            requestLogger.EnableSessionTracking = EnableSessionTracking;
+            requestLogger.EnableResponseTracking = EnableResponseTracking;
+            requestLogger.EnableRequestBodyTracking = EnableRequestBodyTracking;
+            requestLogger.EnableErrorTracking = EnableErrorTracking;
+            requestLogger.ExcludeRequestDtoTypes = ExcludeRequestDtoTypes.ToArray();
+            requestLogger.HideRequestBodyForRequestDtoTypes = HideRequestBodyForRequestDtoTypes.ToArray();
+
+            appHost.Register(requestLogger);
         }
     }
 }
