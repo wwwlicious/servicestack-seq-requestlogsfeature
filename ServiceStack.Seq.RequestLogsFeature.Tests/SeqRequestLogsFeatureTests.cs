@@ -113,10 +113,10 @@
         [InlineData(false)]
         public void EnableRequestBodyTracking_Get_GetsFromAppSettings(bool enabled)
         {
-            CallTo(() => settings.Get<bool>(ConfigKeys.EnableRequestBodyTracking)).Returns(enabled);
+            CallTo(() => settings.Get(ConfigKeys.EnableRequestBodyTracking, false)).Returns(enabled);
 
             GetFeature().EnableRequestBodyTracking.Should().Be(enabled);
-            CallTo(() => settings.Get<bool>(ConfigKeys.EnableRequestBodyTracking)).MustHaveHappened();
+            CallTo(() => settings.Get(ConfigKeys.EnableRequestBodyTracking, false)).MustHaveHappened();
         }
 
         [Theory]
@@ -133,10 +133,10 @@
         [InlineData(false)]
         public void EnableSessionTracking_Get_GetsFromAppSettings(bool enabled)
         {
-            CallTo(() => settings.Get<bool>(ConfigKeys.EnableSessionTracking)).Returns(enabled);
+            CallTo(() => settings.Get(ConfigKeys.EnableSessionTracking, false)).Returns(enabled);
 
             GetFeature().EnableSessionTracking.Should().Be(enabled);
-            CallTo(() => settings.Get<bool>(ConfigKeys.EnableSessionTracking)).MustHaveHappened();
+            CallTo(() => settings.Get(ConfigKeys.EnableSessionTracking, false)).MustHaveHappened();
         }
 
         [Theory]
@@ -153,10 +153,10 @@
         [InlineData(false)]
         public void EnableResponseTracking_Get_GetsFromAppSettings(bool enabled)
         {
-            CallTo(() => settings.Get<bool>(ConfigKeys.EnableResponseTracking)).Returns(enabled);
+            CallTo(() => settings.Get(ConfigKeys.EnableResponseTracking, false)).Returns(enabled);
 
             GetFeature().EnableResponseTracking.Should().Be(enabled);
-            CallTo(() => settings.Get<bool>(ConfigKeys.EnableResponseTracking)).MustHaveHappened();
+            CallTo(() => settings.Get(ConfigKeys.EnableResponseTracking, false)).MustHaveHappened();
         }
 
         [Theory]
