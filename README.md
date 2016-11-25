@@ -22,42 +22,42 @@ Once you have it installed, you can check it is running locally on the default p
 
 # Quick Start
 
-In your `AppHost` class `Configure` method, add the plugin and specify your seq url.
-You can futher customise the configuration options using the example below
+In your `AppHost` class `Configure` method, add the plugin. By default configuration values are read from the registered `IAppSettings` instance. Alternatively configuration options are exposed as public properties of the feature class.
 
 ```csharp
 public override void Configure(Container container)
 {
-    // Config examples
-    Plugins.Add(
-        new SeqRequestLogsFeature(
-            new SeqRequestLogsSettings("http://localhost:5341") // required seq server url:port
-                // everything else is optional
-                .ApiKey("seqApiKey")            // api key for seq
-                .Enabled()                      // default true
-                .EnableErrorTracking()          // default true
-                .EnableSessionTracking()        // default false
-                .EnableRequestBodyTracking()    // default false
-                .EnableResponseTracking()       // default false
-                .ExcludeRequestDtoTypes(typeof(SeqRequestLogConfig)) // add your own type exclusions
-                .HideRequestBodyForRequestDtoTypes(typeof(SeqRequestLogConfig)) // add your own exclusions for bodyrequest logging
-                .RequiredRoles("admin", "ops") // restrict the runtime configuration to specific roles
-                .UseCustomLogger(new CustomLogger()) // swap out the seq logger for your own implementation
-                .ClearExcludeRequestDtoTypes()  // remove default exclusions (RequestLog)
-                .ClearHideRequestBodyForRequestDtoTypes() // remove default request body exclusions (Auth, Registration)
-                .AppendProperties(
-                     (request, dto, response, duration) =>
-                        {
-                            return new Dictionary<string, object>() { { "NewCustomProperty", "42" } }; //add additional properties to Seq log entry.
-                        })
-                .AddLogEvent(
-                    (request, dto, response, duration) =>
-                        {
-                            // your custom log event
-                        })));
+    // Basic setup. All config read from AppSettings
+    Plugins.Add(new SeqRequestLogsFeature());
 
+	// Register plugin, setting optional params via object initialiser
+    Plugins.Add(new SeqRequestLogsFeature
+    {
+        // add additional properties to Seq log entry.
+        AppendProperties = (request, dto, response, duration) =>
+            new Dictionary<string, object> { { "NewCustomProperty", "42" } },
+        ExcludeRequestDtoTypes = new[] { typeof(SeqRequestLogConfig) }, // add your own type exclusions
+        HideRequestBodyForRequestDtoTypes = new[] { typeof(SeqRequestLogConfig) } // add your own exclusions for bodyrequest logging
+    });
 }
 ```
+### Configuration Options
+| Property | Description | AppSettings key |
+| --- | --- | --- |
+| SeqUrl | URI of Seq server. Required | servicestack.seq.requestlogs.seq.url|
+| ApiKey | Seq Api Key | servicestack.seq.requestlogs.seq.apikey|
+| Enabled | Default True | servicestack.seq.requestlogs.enabled|
+| EnableErrorTracking | Default True | servicestack.seq.requestlogs.errortracking.enabled|
+| EnableRequestBodyTracking | Default False | servicestack.seq.requestlogs.requestbodytracking.enabled|
+| EnableSessionTracking | Default False | servicestack.seq.requestlogs.sessiontracking.enabled|
+| EnableResponseTracking | Default False | servicestack.seq.requestlogs.responsetracking.enabled|
+| AppendProperties | Add additional properties to log | N/A|
+| RawEventLogger | Delegate for custom loggin | responsetracking.enabled|
+| Logger | Swap out seq logger for custom implementation | responsetracking.enabled|
+| RequiredRoles | Restrict the runtime configuration to specific roles | servicestack.seq.requestlogs.requiredroles|
+| HideRequestBodyForRequestDtoTypes | Type exclusions for body request logging | N/A|
+| ExcludeRequestDtoTypes | Type exclusions for logging | N/A|
+
 
 ### Request Correlation
 

@@ -41,34 +41,6 @@ namespace ConsoleDemo
                 ExcludeRequestDtoTypes = new[] { typeof(SeqRequestLogConfig) }, // add your own type exclusions
                 HideRequestBodyForRequestDtoTypes = new[] { typeof(SeqRequestLogConfig) } // add your own exclusions for bodyrequest logging
             });
-
-            /*Plugins.Add(
-                new SeqRequestLogsFeature(
-                    new SeqRequestLogsSettings("http://localhost:5341") // required seq server url:port
-
-                        // everything below is optional
-                        .ApiKey("seqApiKey")            // api key for seq
-                        .Enabled()                      // default true
-                        .EnableErrorTracking()          // default true
-                        .EnableSessionTracking()        // default false
-                        .EnableRequestBodyTracking()    // default false
-                        .EnableResponseTracking()       // default false
-                        .ClearExcludeRequestDtoTypes()  // remove default exclusions (RequestLog)
-                        .ClearHideRequestBodyForRequestDtoTypes() // remove default request body exclusions (Auth, Registration)
-                        .ExcludeRequestDtoTypes(typeof(SeqRequestLogConfig)) // add your own type exclusions
-                        .HideRequestBodyForRequestDtoTypes(typeof(SeqRequestLogConfig)) // add your own exclusions for bodyrequest logging
-                        .RequiredRoles("admin", "ops") // restrict the runtime configuration to specific roles
-                        // .UseCustomLogger(new CustomLogger()) // swap out the seq logger for your own implementation
-                        .AppendProperties(
-                            (request, dto, response, duration) =>
-                            {
-                                return new Dictionary<string, object> { { "NewCustomProperty", "42" } }; // add additional properties to Seq log entry.
-                            })
-                        .AddLogEvent(
-                            (request, dto, response, duration) =>
-                                {
-                                    // your custom log event
-                                })));*/
         }
     }
 

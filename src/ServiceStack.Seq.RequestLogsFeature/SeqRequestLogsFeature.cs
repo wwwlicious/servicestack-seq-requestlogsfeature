@@ -70,19 +70,19 @@ namespace ServiceStack.Seq.RequestLogsFeature
 
         public bool EnableRequestBodyTracking
         {
-            get { return appSettings.Get<bool>(ConfigKeys.EnableRequestBodyTracking); }
+            get { return appSettings.Get(ConfigKeys.EnableRequestBodyTracking, false); }
             set { appSettings.Set(ConfigKeys.EnableRequestBodyTracking, value); }
         }
 
         public bool EnableSessionTracking
         {
-            get { return appSettings.Get<bool>(ConfigKeys.EnableSessionTracking); }
+            get { return appSettings.Get(ConfigKeys.EnableSessionTracking, false); }
             set { appSettings.Set(ConfigKeys.EnableSessionTracking, value); }
         }
 
         public bool EnableResponseTracking
         {
-            get { return appSettings.Get<bool>(ConfigKeys.EnableResponseTracking); }
+            get { return appSettings.Get(ConfigKeys.EnableResponseTracking, false); }
             set { appSettings.Set(ConfigKeys.EnableResponseTracking, value); }
         }
 
