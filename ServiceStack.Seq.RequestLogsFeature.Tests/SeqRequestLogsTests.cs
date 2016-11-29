@@ -66,12 +66,11 @@ namespace ServiceStack.Seq.RequestLogsFeature.Tests
 
         [Fact]
         [Trait("Category", "Local")]
-        public async Task GenerateLogData()
+        public void GenerateLogData()
         {
             var client = host.GetClient();
             var names = new[]{ "bob", "server", "spoon" };
 
-            var tasks = new List<Task>();
             for (var i = 0; i < 1000; i++)
             {
                 var index = 0;
@@ -79,16 +78,7 @@ namespace ServiceStack.Seq.RequestLogsFeature.Tests
                 if (i % 100 == 0) index = 1;
                 
                 var request = new Hello(names[index]);
-                tasks.Add(client.SendAsync(request));
-            }
-
-            try
-            {
-                await Task.WhenAll(tasks).ConfigureAwait(false);
-            }
-            catch (Exception)
-            {
-                // no-op. Has expected exception
+                client.SendAsync(request);
             }
         }
     }
