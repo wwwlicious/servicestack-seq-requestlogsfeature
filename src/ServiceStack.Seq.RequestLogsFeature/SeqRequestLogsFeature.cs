@@ -9,24 +9,30 @@ namespace ServiceStack.Seq.RequestLogsFeature
     using Admin;
     using Configuration;
     using FluentValidation;
+    using Logging;
     using Validators;
     using Web;
 
     public class SeqRequestLogsFeature : IPlugin
     {
-        private IAppSettings appSettings;
+        private readonly ILog log = LogManager.GetLogger(typeof(SeqRequestLogsFeature));
+        private readonly IAppSettings appSettings;
         private readonly ConfigValidator configValidator = new ConfigValidator();
-        private readonly SeqRequestLogsSettings featureSettings;
 
         public SeqRequestLogsFeature()
         {
+            appSettings = AppHostBase.Instance.AppSettings;
+
+            if (log.IsDebugEnabled)
+                log.Debug($"Using {appSettings.GetType().Name} appSettings for appSettings provider");
         }
 
         [Obsolete("Use parameterless ctor instead and set public properties")]
-        public SeqRequestLogsFeature(SeqRequestLogsSettings settings)
+        public SeqRequestLogsFeature(SeqRequestLogsSettings settings) : this()
         {
             // NOTE - this is to prevent breaking backwards compat.
-            featureSettings = settings;
+            settings.ThrowIfNull(nameof(settings));
+            settings.PopulateProperties(this);
         }
 
         public IEnumerable<Type> ExcludeRequestDtoTypes { get; set; } = new List<Type>(new[] { typeof(RequestLogs) });
@@ -112,11 +118,6 @@ namespace ServiceStack.Seq.RequestLogsFeature
 
         public void Register(IAppHost appHost)
         {
-            appSettings = appHost.AppSettings ?? new AppSettings();
-
-            // If there is a feature settings object, use it to populate Plugin settings
-            featureSettings?.PopulateProperties(this);
-
             configValidator.ValidateAndThrow(this);
 
             ConfigureRequestLogger(appHost);

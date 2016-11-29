@@ -22,7 +22,8 @@ Once you have it installed, you can check it is running locally on the default p
 
 # Quick Start
 
-In your `AppHost` class `Configure` method, add the plugin. By default configuration values are read from the registered `IAppSettings` instance. Alternatively all configuration options are exposed as public properties of the feature class.
+In your `AppHost` class `Configure` method, add the plugin. By default configuration values are read from the registered `IAppSettings` instance. By default this will be an instance of `AppSettings`, if an alternative implementation of `IAppSettings` is to be used it must be registered prior to this plugin being registered.
+Alternatively all configuration options are exposed as public properties of the feature class.
 
 ```csharp
 public override void Configure(Container container)

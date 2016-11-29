@@ -34,6 +34,7 @@ namespace ConsoleDemo
             Plugins.Add(new RequestCorrelationFeature());
             Plugins.Add(new SeqRequestLogsFeature
             {
+                ApiKey = "Overwrite-app-setting",
                 // add additional properties to Seq log entry.
                 AppendProperties =
                     (request, dto, response, duration) =>
