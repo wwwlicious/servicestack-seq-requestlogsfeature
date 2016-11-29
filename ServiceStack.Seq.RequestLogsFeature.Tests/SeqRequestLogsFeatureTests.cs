@@ -1,35 +1,28 @@
 ﻿namespace ServiceStack.Seq.RequestLogsFeature.Tests
 {
-    using System;
     using System.Collections.Generic;
     using Configuration;
     using FakeItEasy;
     using FluentAssertions;
-    using Web;
     using Xunit;
     using static FakeItEasy.A;
 
     [Collection("AppHost")]
-    public class SeqRequestLogsFeatureTests
+    public class SeqRequestLogsFeatureTests : IClassFixture<SeqRequestLogAppHost>
     {
-        private readonly IAppSettings settings;
-        private readonly IAppHost appHost;
         private const string Url = "http://8.8.8.8:1234";
+        private readonly SeqRequestLogAppHost fixture;
 
-        public SeqRequestLogsFeatureTests()
+        private IAppSettings settings => fixture.Settings;
+
+        public SeqRequestLogsFeatureTests(SeqRequestLogAppHost fixture)
         {
-            settings = Fake<IAppSettings>();
-
-            appHost = Fake<IAppHost>();
-            CallTo(() => appHost.PreRequestFilters).Returns(new List<Action<IRequest, IResponse>>());
-            CallTo(() => appHost.AppSettings).Returns(settings);
-            CallTo(() => settings.GetString(ConfigKeys.SeqUrl)).Returns(Url);
+            this.fixture = fixture;
         }
 
         private SeqRequestLogsFeature GetFeature()
         {
             var feature = new SeqRequestLogsFeature();
-            feature.Register(appHost);
             return feature;
         }
 

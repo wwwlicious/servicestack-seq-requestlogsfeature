@@ -2,14 +2,18 @@ namespace ServiceStack.Seq.RequestLogsFeature.Tests
 {
     using System;
     using System.Collections.Generic;
-
+    using Configuration;
+    using FakeItEasy;
     using Funq;
 
     using ServiceStack.Web;
-    
+    using static FakeItEasy.A;
+
     public class SeqRequestLogAppHost : AppSelfHostBase
     {
         public readonly string BaseUrl = "http://localhost:1337/";
+        private const string Url = "http://8.8.8.8:1234";
+        public readonly IAppSettings Settings = Fake<IAppSettings>();
 
         private string httpLocalhost  = "http://localhost:5341";
 
@@ -17,12 +21,15 @@ namespace ServiceStack.Seq.RequestLogsFeature.Tests
 
         public SeqRequestLogAppHost() : base("DemoService", typeof(DemoService).Assembly)
         {
+            CallTo(() => Settings.GetString(ConfigKeys.SeqUrl)).Returns(Url);
             CustomLogs = new List<CustomLog>();
             this.Init().Start(BaseUrl);
         }
 
         public override void Configure(Container container)
         {
+            AppSettings = Settings;
+
             Plugins.Add(
                 new SeqRequestLogsFeature(
                     new SeqRequestLogsSettings(httpLocalhost)
