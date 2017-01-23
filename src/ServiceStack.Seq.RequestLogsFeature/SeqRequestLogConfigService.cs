@@ -7,7 +7,8 @@ namespace ServiceStack.Seq.RequestLogsFeature
     using System.Linq;
 
     using ServiceStack.Web;
-
+    
+    [Restrict(VisibilityTo = RequestAttributes.None)]
     public class SeqRequestLogConfigService : Service
     {
         public SeqRequestLogConfig Any(SeqRequestLogConfig req)

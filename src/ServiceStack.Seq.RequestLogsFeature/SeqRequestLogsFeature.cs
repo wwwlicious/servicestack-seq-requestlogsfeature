@@ -121,7 +121,11 @@ namespace ServiceStack.Seq.RequestLogsFeature
             configValidator.ValidateAndThrow(this);
 
             ConfigureRequestLogger(appHost);
-            appHost.RegisterService(typeof(SeqRequestLogConfigService));
+
+            var atRestPath = "/SeqRequestLogConfig";
+
+            appHost.RegisterService(typeof(SeqRequestLogConfigService), atRestPath);
+
             if (EnableRequestBodyTracking)
             {
                 appHost.PreRequestFilters.Insert(0, (httpReq, httpRes) =>
@@ -132,7 +136,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
 
             appHost.GetPlugin<MetadataFeature>()
                 .AddDebugLink(SeqUrl, "Seq Request Logs")
-                .AddPluginLink("/SeqRequestLogConfig", "Seq IRequestLogger Configuration");
+                .AddPluginLink(atRestPath.TrimStart('/'), "Seq IRequestLogger Configuration");
         }
 
         private void ConfigureRequestLogger(IAppHost appHost)
