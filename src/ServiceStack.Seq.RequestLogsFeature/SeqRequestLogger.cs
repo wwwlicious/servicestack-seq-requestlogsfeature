@@ -211,8 +211,19 @@ namespace ServiceStack.Seq.RequestLogsFeature
                 }
 
                 var ex = response as Exception;
-                if(ex != null)  
-                    requestLogEntry.Exception = ex.ToString();
+                if (ex != null)
+                {
+                    if (ex.InnerException != null)
+                    {
+                        requestLogEntry.Exception = ex.InnerException.ToString();
+                        requestLogEntry.Properties.Add("ExceptionSource", ex.InnerException.Source);
+                        requestLogEntry.Properties.Add("ExceptionData", ex.InnerException.Data);
+                    }
+                    else
+                    {
+                        requestLogEntry.Exception = ex.ToString();
+                    }
+                }
             }
 
             if (AppendProperties != null)
