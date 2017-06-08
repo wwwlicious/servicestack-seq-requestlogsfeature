@@ -21,7 +21,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
             if (logger.RequiredRoles.Any())
             {
                 var session = GetSession();
-                if (session != null && !logger.RequiredRoles.Any(t => session.HasRole(t)))
+                if (session != null && !logger.RequiredRoles.Any(t => session.HasRole(t, base.AuthRepository)))
                 {
                     return null;
                 }
