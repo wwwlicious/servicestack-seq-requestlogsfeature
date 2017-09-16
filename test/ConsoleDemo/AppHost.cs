@@ -3,7 +3,6 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 namespace ConsoleDemo
 {
-    using System;
     using System.Collections.Generic;
 
     using Funq;
@@ -11,7 +10,6 @@ namespace ConsoleDemo
     using ServiceStack;
     using ServiceStack.Request.Correlation;
     using ServiceStack.Seq.RequestLogsFeature;
-    using ServiceStack.Web;
 
     public class AppHost : AppSelfHostBase
     {
@@ -42,33 +40,6 @@ namespace ConsoleDemo
                 ExcludeRequestDtoTypes = new[] { typeof(SeqRequestLogConfig) }, // add your own type exclusions
                 HideRequestBodyForRequestDtoTypes = new[] { typeof(SeqRequestLogConfig) } // add your own exclusions for bodyrequest logging
             });
-        }
-    }
-
-    public class CustomLogger : IRequestLogger
-    {
-        public bool EnableSessionTracking { get; set; }
-
-        public bool EnableRequestBodyTracking { get; set; }
-
-        public bool EnableResponseTracking { get; set; }
-
-        public bool EnableErrorTracking { get; set; }
-
-        public string[] RequiredRoles { get; set; }
-
-        public Type[] ExcludeRequestDtoTypes { get; set; }
-
-        public Type[] HideRequestBodyForRequestDtoTypes { get; set; }
-
-        public void Log(IRequest request, object requestDto, object response, TimeSpan elapsed)
-        {
-            throw new NotImplementedException();
-        }
-
-        List<RequestLogEntry> IRequestLogger.GetLatestLogs(int? take)
-        {
-            throw new NotImplementedException();
         }
     }
 }
