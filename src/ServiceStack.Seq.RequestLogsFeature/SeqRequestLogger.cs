@@ -251,5 +251,8 @@ namespace ServiceStack.Seq.RequestLogsFeature
                    && requestType != null
                    && ExcludeRequestDtoTypes.Contains(requestType);
         }
+
+        public bool LimitToServiceRequests { get; set; }
+        public Func<IRequest, bool> SkipLogging { get; set; }
     }
 }

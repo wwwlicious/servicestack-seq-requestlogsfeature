@@ -4,9 +4,7 @@
 namespace ServiceStack.Seq.RequestLogsFeature.Tests
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
-    using System.Threading.Tasks;
     using FluentAssertions;
 
     using ServiceStack.FluentValidation;
@@ -28,7 +26,9 @@ namespace ServiceStack.Seq.RequestLogsFeature.Tests
         {
             var entry = new SeqRequestLogEntry();
             var json = entry.ToJson();
-            json.Should().Be("{\"Level\":\"Debug\",\"Properties\":{},\"MessageTemplate\":\"Servicestack SeqRequestLogsFeature\"}");
+            json.Should()
+                .Be(
+                    "{\"Level\":\"Debug\",\"Properties\":{},\"MessageTemplate\":\"Servicestack SeqRequestLogsFeature\"}");
         }
 
         [Theory]
@@ -50,6 +50,35 @@ namespace ServiceStack.Seq.RequestLogsFeature.Tests
 
         [Fact]
         [Trait("Category", "Local")]
+        public void GenerateLogData()
+        {
+            var client = host.GetClient();
+            var names = new[] { "bob", "server", "spoon" };
+
+            for (var i = 0; i < 1000; i++)
+            {
+                var index = 0;
+                if (i % 20 == 0) index = 2;
+                if (i % 100 == 0) index = 1;
+
+                var request = new Hello(names[index]);
+                client.SendAsync(request);
+            }
+        }
+    }
+
+    [Collection("AppHost")]
+    public class SeqRequestCustomLogsTests : IClassFixture<SeqRequestLogAppHost>
+    {
+        private readonly SeqRequestLogAppHost host;
+
+        public SeqRequestCustomLogsTests(SeqRequestLogAppHost host)
+        {
+            this.host = host;
+        }
+
+        [Fact]
+        [Trait("Category", "Local")]
         public void CanCallLog()
         {
             var client = host.GetClient();
@@ -59,27 +88,9 @@ namespace ServiceStack.Seq.RequestLogsFeature.Tests
 
             response.Greeting.Should().Be("Hello Phil");
 
-            var customLogs = host.CustomLogs.Last();
+            var customLogs = host.CustomLogs.ToArray().Single(x => ((Hello)x.RequestDto).Name == requestDto.Name);
             customLogs.RequestDto.Should().BeOfType<Hello>().Which.Name.Should().Be("Phil");
             customLogs.Response.Should().NotBeNull();
-        }
-
-        [Fact]
-        [Trait("Category", "Local")]
-        public void GenerateLogData()
-        {
-            var client = host.GetClient();
-            var names = new[]{ "bob", "server", "spoon" };
-
-            for (var i = 0; i < 1000; i++)
-            {
-                var index = 0;
-                if (i % 20 == 0) index = 2;
-                if (i % 100 == 0) index = 1;
-                
-                var request = new Hello(names[index]);
-                client.SendAsync(request);
-            }
         }
     }
 }
