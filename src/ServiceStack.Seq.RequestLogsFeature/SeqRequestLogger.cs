@@ -46,50 +46,50 @@ namespace ServiceStack.Seq.RequestLogsFeature
 
         public bool Enabled
         {
-            get { return feature.Enabled; }
-            set { feature.Enabled = value; }
+            get => feature.Enabled;
+            set => feature.Enabled = value;
         }
 
         public bool EnableSessionTracking
         {
-            get { return feature.EnableSessionTracking; }
-            set { feature.EnableSessionTracking = value; }
+            get => feature.EnableSessionTracking;
+            set => feature.EnableSessionTracking = value;
         }
 
         public bool EnableRequestBodyTracking
         {
-            get { return feature.EnableRequestBodyTracking; }
-            set { feature.EnableRequestBodyTracking = value; }
+            get => feature.EnableRequestBodyTracking;
+            set => feature.EnableRequestBodyTracking = value;
         }
 
         public bool EnableResponseTracking
         {
-            get { return feature.EnableResponseTracking; }
-            set { feature.EnableResponseTracking = value; }
+            get => feature.EnableResponseTracking;
+            set => feature.EnableResponseTracking = value;
         }
 
         public bool EnableErrorTracking
         {
-            get { return feature.EnableErrorTracking; }
-            set { feature.EnableErrorTracking = value; }
+            get => feature.EnableErrorTracking;
+            set => feature.EnableErrorTracking = value;
         }
 
         public string[] RequiredRoles
         {
-            get { return feature.RequiredRoles?.ToArray(); }
-            set { feature.RequiredRoles = value?.ToList(); }
+            get => feature.RequiredRoles?.ToArray();
+            set => feature.RequiredRoles = value?.ToList();
         }
 
         public Type[] ExcludeRequestDtoTypes
         {
-            get { return feature.ExcludeRequestDtoTypes?.ToArray(); }
-            set { feature.ExcludeRequestDtoTypes = value?.ToList(); }
+            get => feature.ExcludeRequestDtoTypes?.ToArray();
+            set => feature.ExcludeRequestDtoTypes = value?.ToList();
         }
 
         public Type[] HideRequestBodyForRequestDtoTypes
         {
-            get { return feature.HideRequestBodyForRequestDtoTypes?.ToArray(); }
-            set { feature.HideRequestBodyForRequestDtoTypes = value?.ToList(); }
+            get => feature.HideRequestBodyForRequestDtoTypes?.ToArray();
+            set => feature.HideRequestBodyForRequestDtoTypes = value?.ToList();
         }
 
         /// <summary>
@@ -98,8 +98,8 @@ namespace ServiceStack.Seq.RequestLogsFeature
         /// </summary>
         public SeqRequestLogsFeature.PropertyAppender AppendProperties
         {
-            get { return feature.AppendProperties; }
-            set { feature.AppendProperties = value; }
+            get => feature.AppendProperties;
+            set => feature.AppendProperties = value;
         }
 
         public void Log(IRequest request, object requestDto, object response, TimeSpan requestDuration)
@@ -109,10 +109,14 @@ namespace ServiceStack.Seq.RequestLogsFeature
                 // bypasses all flags to run raw log event delegate if configured
                 feature.RawEventLogger?.Invoke(request, requestDto, response, requestDuration);
 
+                // if logging disabled
                 if (!Enabled) return;
 
-                var requestType = requestDto?.GetType();
+                // check any custom filter
+                if (feature.SkipLogging?.Invoke(request) == true) return;
 
+                // skip logging any dto exclusion types set
+                var requestType = requestDto?.GetType();
                 if (ExcludeRequestType(requestType)) return;
 
                 var entry = CreateEntry(request, requestDto, response, requestDuration, requestType);
@@ -197,8 +201,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
             }
             else if (EnableErrorTracking)
             {
-                var errorResponse = response as IHttpError;
-                if (errorResponse != null)
+                if (response is IHttpError errorResponse)
                 {
                     requestLogEntry.Level = errorResponse.StatusCode >= HttpStatusCode.BadRequest
                                             && errorResponse.StatusCode < HttpStatusCode.InternalServerError
