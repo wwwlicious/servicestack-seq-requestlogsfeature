@@ -1,6 +1,6 @@
 # ServiceStack.Seq.RequestLogsFeature
 
-[![Build status](https://ci.appveyor.com/api/projects/status/89pfhb02b0psi80e/branch/master?svg=true)](https://ci.appveyor.com/project/MacLeanElectrical/servicestack-seq-requestlogsfeature/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/89pfhb02b0psi80e/branch/master?svg=true)](https://ci.appveyor.com/project/wwwlicious/servicestack-seq-requestlogsfeature/branch/master)
 [![NuGet version](https://badge.fury.io/nu/ServiceStack.Seq.RequestLogsFeature.svg)](https://badge.fury.io/nu/ServiceStack.Seq.RequestLogsFeature)
 
 A ServiceStack plugin that logs requests to [Seq](http://getseq.net). For more details view the [blog post](http://wwwlicious.com/2015/10/25/logging-servicestack-requests-with-seq/)
