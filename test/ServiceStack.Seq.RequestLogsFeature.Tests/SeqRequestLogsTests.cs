@@ -38,8 +38,6 @@ namespace ServiceStack.Seq.RequestLogsFeature.Tests
         public void InvalidUrlThrowsException(string url)
         {
             Assert.Throws<ValidationException>(() => new SeqRequestLogsSettings(url));
-            //Action action = () => new SeqRequestLogsSettings(url);
-            //action.ShouldThrow<ValidationException>();
         }
 
         [Fact]

@@ -1,6 +1,6 @@
 # ServiceStack.Seq.RequestLogsFeature
 
-[![Build status](https://ci.appveyor.com/api/projects/status/89pfhb02b0psi80e/branch/master?svg=true)](https://ci.appveyor.com/project/MacLeanElectrical/servicestack-seq-requestlogsfeature/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/89pfhb02b0psi80e/branch/master?svg=true)](https://ci.appveyor.com/project/wwwlicious/servicestack-seq-requestlogsfeature/branch/master)
 [![NuGet version](https://badge.fury.io/nu/ServiceStack.Seq.RequestLogsFeature.svg)](https://badge.fury.io/nu/ServiceStack.Seq.RequestLogsFeature)
 
 A ServiceStack plugin that logs requests to [Seq](http://getseq.net). For more details view the [blog post](http://wwwlicious.com/2015/10/25/logging-servicestack-requests-with-seq/)
@@ -31,14 +31,20 @@ public override void Configure(Container container)
     // Basic setup. All config read from AppSettings
     Plugins.Add(new SeqRequestLogsFeature());
 
-	// Register plugin, setting optional properties via object initialiser
+	// Register plugin, setting optional properties 
     Plugins.Add(new SeqRequestLogsFeature
     {
         // add additional properties to Seq log entry.
-        AppendProperties = (request, dto, response, duration) =>
-            new Dictionary<string, object> { { "NewCustomProperty", "42" } },
-        ExcludeRequestDtoTypes = new[] { typeof(SeqRequestLogConfig) }, // add your own type exclusions
-        HideRequestBodyForRequestDtoTypes = new[] { typeof(SeqRequestLogConfig) } // add your own exclusions for bodyrequest logging
+        AppendProperties = (request, dto, response, duration) => new Dictionary<string, object> { { "NewCustomProperty", "42" } },
+
+        // exclude specific dto types from logging
+        ExcludeRequestDtoTypes = new[] { typeof(SeqRequestLogConfig) }, 
+        
+        // exclude request body logging for specific dto types
+        HideRequestBodyForRequestDtoTypes = new[] { typeof(SeqRequestLogConfig) },
+        
+        // custom request logging exclusion
+        SkipLogging = (request) => request.RawUrl == "/ignoreme"; 
     });
 }
 ```
@@ -53,11 +59,12 @@ public override void Configure(Container container)
 | EnableSessionTracking | Default False | servicestack.seq.requestlogs.sessiontracking.enabled|
 | EnableResponseTracking | Default False | servicestack.seq.requestlogs.responsetracking.enabled|
 | AppendProperties | Add additional properties to log | N/A|
-| RawEventLogger | Delegate for custom logging | responsetracking.enabled|
+| RawEventLogger | low evel delegate for custom logging, bypasses all other settings | responsetracking.enabled|
 | Logger | Swap out seq logger for custom implementation | responsetracking.enabled|
 | RequiredRoles | Restrict the runtime configuration to specific roles | servicestack.seq.requestlogs.requiredroles|
 | HideRequestBodyForRequestDtoTypes | Type exclusions for body request logging | N/A|
 | ExcludeRequestDtoTypes | Type exclusions for logging | N/A|
+| SkipLogging | Skip logging for any custom IRequest conditions | N/A
 
 
 ### Request Correlation

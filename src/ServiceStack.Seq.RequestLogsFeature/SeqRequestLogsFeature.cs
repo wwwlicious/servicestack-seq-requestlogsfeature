@@ -21,8 +21,16 @@ namespace ServiceStack.Seq.RequestLogsFeature
 
         public SeqRequestLogsFeature()
         {
-            appSettings = ServiceStackHost.Instance.AppSettings;
+            appSettings = appSettings ?? AppHostBase.Instance.AppSettings;
 
+            if (log.IsDebugEnabled)
+                log.Debug($"Using {appSettings.GetType().Name} appSettings for appSettings provider");
+        }
+
+        public SeqRequestLogsFeature(IAppSettings settings)
+        {
+            appSettings = settings.ThrowIfNull(nameof(settings));
+            
             if (log.IsDebugEnabled)
                 log.Debug($"Using {appSettings.GetType().Name} appSettings for appSettings provider");
         }
@@ -35,20 +43,32 @@ namespace ServiceStack.Seq.RequestLogsFeature
             settings.PopulateProperties(this);
         }
 
+        /// <summary>
+        /// Excludes requests for specific DTO types from logging, ignores RequestLog requests by default
+        /// </summary>
         public IEnumerable<Type> ExcludeRequestDtoTypes { get; set; } = new List<Type>(new[] { typeof(RequestLogs) });
 
+        /// <summary>
+        /// Exclude request body for specific DTO types from logging, ignores authentication and registration dtos by default
+        /// </summary>
         public IEnumerable<Type> HideRequestBodyForRequestDtoTypes { get; set; } =
             new List<Type>(new[] { typeof(Authenticate), typeof(Register) });
 
+        /// <summary>
+        /// Restrict access to the runtime log settings 
+        /// </summary>
         public List<string> RequiredRoles
         {
-            get { return appSettings.GetList(ConfigKeys.RequiredRoles)?.ToList(); }
-            set { appSettings.Set(ConfigKeys.RequiredRoles, string.Join(",", value)); }
+            get => appSettings.GetList(ConfigKeys.RequiredRoles)?.ToList();
+            set => appSettings.Set(ConfigKeys.RequiredRoles, string.Join(",", value));
         }
 
+        /// <summary>
+        /// Sets a seq server url
+        /// </summary>
         public string SeqUrl
         {
-            get { return appSettings.GetString(ConfigKeys.SeqUrl); }
+            get => appSettings.GetString(ConfigKeys.SeqUrl);
             set
             {
                 appSettings.Set(ConfigKeys.SeqUrl, value);
@@ -56,66 +76,116 @@ namespace ServiceStack.Seq.RequestLogsFeature
             }
         }
 
+        /// <summary>
+        /// Sets a seq api key
+        /// </summary>
         public string ApiKey
         {
-            get { return appSettings.GetString(ConfigKeys.ApiKey); }
-            set { appSettings.Set(ConfigKeys.ApiKey, value); }
+            get => appSettings.GetString(ConfigKeys.ApiKey);
+            set => appSettings.Set(ConfigKeys.ApiKey, value);
         }
 
+        /// <summary>
+        /// Turn the logging on and off, defaults to true
+        /// </summary>
         public bool Enabled
         {
-            get { return appSettings.Get(ConfigKeys.Enabled, true); }
-            set { appSettings.Set(ConfigKeys.Enabled, value); }
+            get => appSettings.Get(ConfigKeys.Enabled, true);
+            set => appSettings.Set(ConfigKeys.Enabled, value);
         }
 
+        /// <summary>
+        /// Log errors, defaults to true
+        /// </summary>
         public bool EnableErrorTracking
         {
-            get { return appSettings.Get(ConfigKeys.EnableErrorTracking, true); }
-            set { appSettings.Set(ConfigKeys.EnableErrorTracking, value); }
+            get => appSettings.Get(ConfigKeys.EnableErrorTracking, true);
+            set => appSettings.Set(ConfigKeys.EnableErrorTracking, value);
         }
 
+        /// <summary>
+        /// Log request bodies, defaults to false
+        /// </summary>
         public bool EnableRequestBodyTracking
         {
-            get { return appSettings.Get(ConfigKeys.EnableRequestBodyTracking, false); }
-            set { appSettings.Set(ConfigKeys.EnableRequestBodyTracking, value); }
+            get => appSettings.Get(ConfigKeys.EnableRequestBodyTracking, false);
+            set => appSettings.Set(ConfigKeys.EnableRequestBodyTracking, value);
         }
 
+        /// <summary>
+        /// Log session details, defaults to false
+        /// </summary>
         public bool EnableSessionTracking
         {
-            get { return appSettings.Get(ConfigKeys.EnableSessionTracking, false); }
-            set { appSettings.Set(ConfigKeys.EnableSessionTracking, value); }
+            get => appSettings.Get(ConfigKeys.EnableSessionTracking, false);
+            set => appSettings.Set(ConfigKeys.EnableSessionTracking, value);
         }
 
+        /// <summary>
+        /// Log responses, defaults to false
+        /// </summary>
         public bool EnableResponseTracking
         {
-            get { return appSettings.Get(ConfigKeys.EnableResponseTracking, false); }
-            set { appSettings.Set(ConfigKeys.EnableResponseTracking, value); }
+            get => appSettings.Get(ConfigKeys.EnableResponseTracking, false);
+            set => appSettings.Set(ConfigKeys.EnableResponseTracking, value);
         }
+        
+        /// <summary>
+        /// Low level request filter for logging, return true to skip logging the request
+        /// </summary>
+        public Func<IRequest, bool> SkipLogging { get; set; }
 
+        /// <summary>
+        /// Append custom properties to all log entries
+        /// </summary>
         public PropertyAppender AppendProperties { get; set; }
 
+        /// <summary>
+        /// Lowest level access to customised logging, executes before any other logging settings
+        /// </summary>
         public RawLogEvent RawEventLogger { get; set; }
 
         private IRequestLogger logger;
 
+        /// <summary>
+        /// Sets the seq logger by default, override with a custom implemetation of <see cref="IRequestLogger"/>
+        /// </summary>
         public IRequestLogger Logger
         {
             get { return logger = logger ?? new SeqRequestLogger(this); }
-            set { logger = value; }
+            set => logger = value;
         } 
 
+        /// <summary>
+        /// Low level delegate for appending custom properties to a log entry
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="requestDto"></param>
+        /// <param name="response"></param>
+        /// <param name="soapDuration"></param>
         public delegate Dictionary<string, object> PropertyAppender(
             IRequest request,
             object requestDto,
             object response,
             TimeSpan soapDuration);
 
+        /// <summary>
+        /// Low level delegate for customised logging
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="requestDto"></param>
+        /// <param name="response"></param>
+        /// <param name="requestDuration"></param>
         public delegate void RawLogEvent(
             IRequest request,
             object requestDto,
             object response,
             TimeSpan requestDuration);
 
+        /// <summary>
+        /// Registers the plugin with the apphost
+        /// </summary>
+        /// <param name="appHost"></param>
         public void Register(IAppHost appHost)
         {
             configValidator.ValidateAndThrow(this);
@@ -148,7 +218,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
             requestLogger.EnableErrorTracking = EnableErrorTracking;
             requestLogger.ExcludeRequestDtoTypes = ExcludeRequestDtoTypes.ToArray();
             requestLogger.HideRequestBodyForRequestDtoTypes = HideRequestBodyForRequestDtoTypes.ToArray();
-
+            requestLogger.SkipLogging = SkipLogging;
             appHost.Register(requestLogger);
         }
     }
