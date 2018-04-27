@@ -3,11 +3,10 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 namespace ServiceStack.Seq.RequestLogsFeature.Tests
 {
-    using System;
     using System.Linq;
     using FluentAssertions;
 
-    using ServiceStack.FluentValidation;
+    using FluentValidation;
 
     using Xunit;
 
@@ -28,7 +27,7 @@ namespace ServiceStack.Seq.RequestLogsFeature.Tests
             var json = entry.ToJson();
             json.Should()
                 .Be(
-                    "{\"Level\":\"Debug\",\"Properties\":{},\"MessageTemplate\":\"Servicestack SeqRequestLogsFeature\"}");
+                    "{\"level\":\"Debug\",\"properties\":{},\"messageTemplate\":\"Servicestack SeqRequestLogsFeature\"}");
         }
 
         [Theory]
@@ -38,8 +37,9 @@ namespace ServiceStack.Seq.RequestLogsFeature.Tests
         [InlineData("notaurl")]
         public void InvalidUrlThrowsException(string url)
         {
-            Action action = () => new SeqRequestLogsSettings(url);
-            action.ShouldThrow<ValidationException>();
+            Assert.Throws<ValidationException>(() => new SeqRequestLogsSettings(url));
+            //Action action = () => new SeqRequestLogsSettings(url);
+            //action.ShouldThrow<ValidationException>();
         }
 
         [Fact]

@@ -6,7 +6,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
     using System;
     using System.Linq;
 
-    using ServiceStack.Web;
+    using Web;
     
     [Restrict(VisibilityTo = RequestAttributes.None)]
     public class SeqRequestLogConfigService : Service
@@ -21,7 +21,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
             if (logger.RequiredRoles.Any())
             {
                 var session = GetSession();
-                if (session != null && !logger.RequiredRoles.Any(t => session.HasRole(t, base.AuthRepository)))
+                if (session != null && !logger.RequiredRoles.Any(t => session.HasRole(t, AuthRepository)))
                 {
                     return null;
                 }

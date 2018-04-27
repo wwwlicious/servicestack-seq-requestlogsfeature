@@ -9,10 +9,10 @@ namespace ServiceStack.Seq.RequestLogsFeature
     using System.Net;
     using System.Threading;
 
-    using ServiceStack.Web;
-    using ServiceStack.Text;
+    using Web;
+    using Text;
     using ServiceStack;
-    using ServiceStack.Logging;
+    using Logging;
 
     public class SeqRequestLogger : IRequestLogger
     {

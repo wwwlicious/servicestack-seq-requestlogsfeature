@@ -6,8 +6,8 @@ namespace ServiceStack.Seq.RequestLogsFeature
     using System;
     using System.Collections.Generic;
 
-    using ServiceStack.FluentValidation;
-    using ServiceStack.Web;
+    using FluentValidation;
+    using Web;
 
     [Obsolete("Use public properties of SeqRequestLogsFeature instead of explicit Settings object")]
     public class SeqRequestLogsSettings
@@ -105,7 +105,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         [Obsolete("Use SeqRequestLogsFeature.AppendProperties property")]
         public SeqRequestLogsSettings AppendProperties(SeqRequestLogsFeature.PropertyAppender appender)
         {
-            this.appendProperties = appender;
+            appendProperties = appender;
             return this;
         }
 
@@ -115,7 +115,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         [Obsolete("Use SeqRequestLogsFeature.Enabled property")]
         public SeqRequestLogsSettings Enabled(bool enable = true)
         {
-            this.enabled = enable;
+            enabled = enable;
             return this;
         }
 
@@ -125,7 +125,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         [Obsolete("Use SeqRequestLogsFeature.EnableErrorTracking property")]
         public SeqRequestLogsSettings EnableErrorTracking(bool enable = true)
         {
-            this.enableErrorTracking = enable;
+            enableErrorTracking = enable;
             return this;
         }
 
@@ -135,7 +135,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         [Obsolete("Use SeqRequestLogsFeature.EnableSessionTracking property")]
         public SeqRequestLogsSettings EnableSessionTracking(bool enable = true)
         {
-            this.enableSessionTracking = enable;
+            enableSessionTracking = enable;
             return this;
         }
 
@@ -145,7 +145,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         [Obsolete("Use SeqRequestLogsFeature.EnableRequestBodyTracking property")]
         public SeqRequestLogsSettings EnableRequestBodyTracking(bool enable = true)
         {
-            this.enableRequestBodyTracking = enable;
+            enableRequestBodyTracking = enable;
             return this;
         }
 
@@ -155,7 +155,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         [Obsolete("Use SeqRequestLogsFeature.EnableResponseTracking property")]
         public SeqRequestLogsSettings EnableResponseTracking(bool enable = true)
         {
-            this.enableResponseTracking = enable;
+            enableResponseTracking = enable;
             return this;
         }
 
@@ -165,7 +165,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         [Obsolete("Use SeqRequestLogsFeature.ExcludeRequestDtoTypes property")]
         public SeqRequestLogsSettings ExcludeRequestDtoTypes(params Type[] types)
         {
-            this.excludeRequestDtoTypes.AddRange(types);
+            excludeRequestDtoTypes.AddRange(types);
             return this;
         }
 
@@ -176,7 +176,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         [Obsolete("Use SeqRequestLogsFeature.ExcludeRequestDtoTypes.Clear()")]
         public SeqRequestLogsSettings ClearExcludeRequestDtoTypes()
         {
-            this.excludeRequestDtoTypes.Clear();
+            excludeRequestDtoTypes.Clear();
             return this;
         }
 
@@ -187,7 +187,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         [Obsolete("Use SeqRequestLogsFeature.HideRequestBodyForRequestDtoTypes property")]
         public SeqRequestLogsSettings HideRequestBodyForRequestDtoTypes(params Type[] types)
         {
-            this.hideRequestBodyForRequestDtoTypes.AddRange(types);
+            hideRequestBodyForRequestDtoTypes.AddRange(types);
             return this;
         }
 
@@ -198,7 +198,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         [Obsolete("Use SeqRequestLogsFeature.HideRequestBodyForRequestDtoTypes.Clear()")]
         public SeqRequestLogsSettings ClearHideRequestBodyForRequestDtoTypes()
         {
-            this.hideRequestBodyForRequestDtoTypes.Clear();
+            hideRequestBodyForRequestDtoTypes.Clear();
             return this;
         }
 
