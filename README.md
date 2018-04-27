@@ -5,7 +5,7 @@
 
 A ServiceStack plugin that logs requests to [Seq](http://getseq.net). For more details view the [blog post](http://wwwlicious.com/2015/10/25/logging-servicestack-requests-with-seq/)
 
-*NB. This version is compatible with ServiceStack v4.x. For v3 compatibility, use the v3 branch*
+*NB. This version is compatible with ServiceStack v5.x. For v3 compatibility, use the v3 branch*
 
 # Installing
 
