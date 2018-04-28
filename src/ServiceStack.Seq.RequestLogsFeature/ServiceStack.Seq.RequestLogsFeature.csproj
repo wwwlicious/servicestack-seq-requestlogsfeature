@@ -1,20 +1,28 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net462;net452;</TargetFrameworks>
+    <Copyright>Copyright © wwwlicious 2016 - Present</Copyright>
+    <Description>Servicestack plugin based on RequestLogsFeature that logs to Seq.</Description>
+    <Authors>Scott Mackay (@wwwlicious)</Authors>
+    <ProjectUrl>https://github.com/wwwlicious/servicestack-seq-requestlogsfeature</ProjectUrl>
+    <PackageId>ServiceStack.Seq.RequestLogsFeature</PackageId>
+    <PackageLicenseUrl>https://www.mozilla.org/en-US/MPL/2.0/</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/wwwlicious/servicestack-seq-requestlogsfeature</PackageProjectUrl>
+    <PackageIconUrl>https://servicestack.net/img/logo-32.png</PackageIconUrl>
+    <PackageTags>seq logging servicestack plugin requestlogs</PackageTags>
+    <Version>0.1.0</Version>
+    <RepositoryUrl>https://github.com/wwwlicious/servicestack-seq-requestlogsfeature</RepositoryUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
-
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DocumentationFile>bin\Debug\ServiceStack.Seq.RequestLogsFeature.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DocumentationFile>bin\Release\ServiceStack.Seq.RequestLogsFeature.xml</DocumentationFile>
+  </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="ServiceStack" Version="5.1.0" />
-    <PackageReference Include="ServiceStack.Client" Version="5.1.0" />
-    <PackageReference Include="ServiceStack.Common" Version="5.1.0" />
-    <PackageReference Include="ServiceStack.Interfaces" Version="5.1.0" />
-    <PackageReference Include="ServiceStack.Redis" Version="5.1.0" />
-    <PackageReference Include="ServiceStack.Server" Version="5.1.0" />
+    <PackageReference Include="ServiceStack.Server" Version="5.*" />
+    <PackageReference Include="ServiceStack.Client" Version="5.*" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-
 </Project>
