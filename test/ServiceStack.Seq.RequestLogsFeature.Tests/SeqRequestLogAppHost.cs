@@ -33,20 +33,20 @@ namespace ServiceStack.Seq.RequestLogsFeature.Tests
             AppSettings = Settings;
 
             Plugins.Add(
-                new SeqRequestLogsFeature(
-                    new SeqRequestLogsSettings(httpLocalhost)
-                        .EnableResponseTracking()
-                        .EnableRequestBodyTracking()
-                        .EnableSessionTracking()
-                        .EnableErrorTracking()
-                        .AddLogEvent(RawLogEvent)
-                        .AppendProperties(
-                            (request, dto, response, duration) =>
-                                {
-                                    var props = new Dictionary<string, object>();
-                                    props.Add("new", "value");
-                                    return props;
-                                })));
+                new SeqRequestLogsFeature
+                {
+                    SeqUrl = httpLocalhost,
+                    EnableErrorTracking = true,
+                    EnableRequestBodyTracking = true,
+                    EnableResponseTracking = true,
+                    EnableSessionTracking = true,
+                    RawEventLogger = RawLogEvent,
+                    AppendProperties = (request, dto, response, duration) =>
+                    {
+                        var props = new Dictionary<string, object> { { "new", "value" } };
+                        return props;
+                    }
+                });
         }
 
         private void RawLogEvent(IRequest request, object requestDto, object response, TimeSpan requestDuration)

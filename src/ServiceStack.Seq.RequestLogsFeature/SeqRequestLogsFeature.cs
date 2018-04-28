@@ -21,7 +21,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
 
         public SeqRequestLogsFeature()
         {
-            appSettings = appSettings ?? AppHostBase.Instance.AppSettings;
+            appSettings = appSettings ?? ServiceStackHost.Instance.AppSettings;
 
             if (log.IsDebugEnabled)
                 log.Debug($"Using {appSettings.GetType().Name} appSettings for appSettings provider");
