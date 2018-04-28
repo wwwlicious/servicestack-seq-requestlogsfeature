@@ -1,3 +1,5 @@
+using ServiceStack.Testing;
+
 namespace ServiceStack.Seq.RequestLogsFeature.Tests
 {
     using System;
@@ -6,7 +8,7 @@ namespace ServiceStack.Seq.RequestLogsFeature.Tests
     using FakeItEasy;
     using Funq;
 
-    using ServiceStack.Web;
+    using Web;
     using static FakeItEasy.A;
 
     public class SeqRequestLogAppHost : AppSelfHostBase
@@ -19,11 +21,11 @@ namespace ServiceStack.Seq.RequestLogsFeature.Tests
 
         public List<CustomLog> CustomLogs { get; }
 
-        public SeqRequestLogAppHost() : base("DemoService", typeof(DemoService).Assembly)
+        public SeqRequestLogAppHost() : base("Unit Test Self Hosted", typeof(DemoService).Assembly)
         {
             CallTo(() => Settings.GetString(ConfigKeys.SeqUrl)).Returns(Url);
             CustomLogs = new List<CustomLog>();
-            this.Init().Start(BaseUrl);
+            Init().Start(BaseUrl);
         }
 
         public override void Configure(Container container)
