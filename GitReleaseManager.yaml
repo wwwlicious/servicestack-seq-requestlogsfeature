@@ -9,4 +9,4 @@ issue-labels-exclude:
 issue-labels-alias:
     - name:    Documentation
       header:  Documentation
-plural: Documentation
+      plural: Documentation
