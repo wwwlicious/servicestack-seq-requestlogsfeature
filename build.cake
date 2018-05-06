@@ -62,6 +62,11 @@ var projects = solution.GetProjects().Select(x => ParseProject(x.Path, configura
 Information(gitVersion.Dump());
 Information(projects.Dump());
 
+Task("Clean")
+.Does(() => {
+    CleanDirectory(buildDirectoryPath);
+});
+
 Task("Restore")
     .Does(() => {
     DotNetCoreRestore(solutionFile);
@@ -247,6 +252,7 @@ Task("ReleaseNotes")
 
 Task("AppVeyor")
     .WithCriteria(shouldPublishRelease)
+    .IsDependentOn("Clean")
     .IsDependentOn("Print-AppVeyor-Environment-Variables")
     .IsDependentOn("Export-Release-Notes")
     .IsDependentOn("Build")
