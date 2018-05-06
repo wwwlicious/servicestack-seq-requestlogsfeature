@@ -33,7 +33,7 @@ var solutionFile = "./src/ServiceStack.Seq.RequestLogsFeature.sln";
 
 // versioning 
 var gvSettings = new GitVersionSettings();
-if(BuildSystem.IsRunningOnAppVeyor) gvSettings.OutputType = GitVersionOutput.BuildServer;
+//if(BuildSystem.IsRunningOnAppVeyor) gvSettings.OutputType = GitVersionOutput.BuildServer;
 var gitVersion = GitVersion(gvSettings);
 var version = gitVersion.MajorMinorPatch;
 var milestone = version;
