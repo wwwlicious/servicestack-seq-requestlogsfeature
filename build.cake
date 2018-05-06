@@ -1,5 +1,5 @@
 #addin nuget:?package=Cake.Incubator&version=2.0.2
-#addin nuget:?package=Cake.AppVeyor&version=3.0.0
+//#addin nuget:?package=Cake.AppVeyor&version=3.0.0
 
 #tool nuget:?package=GitVersion.CommandLine&version=4.0.0-beta0012
 #tool nuget:?package=xunit.runner.console&version=2.3.1
