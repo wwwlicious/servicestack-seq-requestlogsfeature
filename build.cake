@@ -80,10 +80,6 @@ Task("Build")
         var dotnetCoreMsBuildSettings = new DotNetCoreMSBuildSettings{
         };
 
-        var releaseNotes = string.Empty;
-        if(FileExists(milestoneReleaseNotesFilePath)){
-            releaseNotes = string.Join("\n", ParseReleaseNotes(milestoneReleaseNotesFilePath).Notes);
-        }
         var settings = new DotNetCoreBuildSettings
         {
             Configuration = configuration,
@@ -94,7 +90,6 @@ Task("Build")
                 .Append("/p:FileVersion={0}", version)
                 .Append("/p:AssemblyInformationalVersion={0}", informationalVersion)
                 .AppendQuoted("/p:PackageOutputPath={0}", MakeAbsolute((DirectoryPath)nuGetPackagesOutputDirectory).FullPath)
-                .AppendQuoted("/p:PackageReleaseNotes={0}", releaseNotes)
                 .Append("/bl:{0}", buildLogFilePath)
         };
 
