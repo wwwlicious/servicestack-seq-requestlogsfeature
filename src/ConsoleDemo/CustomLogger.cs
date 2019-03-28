@@ -1,4 +1,4 @@
-﻿namespace ConsoleDemo
+namespace ConsoleDemo
 {
     using System;
     using System.Collections.Generic;
@@ -24,6 +24,8 @@
         public Type[] ExcludeRequestDtoTypes { get; set; }
 
         public Type[] HideRequestBodyForRequestDtoTypes { get; set; }
+        public Action<IRequest, RequestLogEntry> RequestLogFilter { get; set; }
+        public Func<DateTime> CurrentDateFn { get; set; } = () => DateTime.UtcNow;
 
         public void Log(IRequest request, object requestDto, object response, TimeSpan elapsed)
         {

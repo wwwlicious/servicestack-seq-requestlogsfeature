@@ -22,7 +22,7 @@
     <DocumentationFile>bin\Release\ServiceStack.Seq.RequestLogsFeature.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="ServiceStack.Server" Version="5.*" />
-    <PackageReference Include="ServiceStack.Client" Version="5.*" />
+    <PackageReference Include="ServiceStack.Server" Version="5.5.0" />
+    <PackageReference Include="ServiceStack.Client" Version="5.5.0" />
   </ItemGroup>
 </Project>

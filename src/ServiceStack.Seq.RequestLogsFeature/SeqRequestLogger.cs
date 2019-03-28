@@ -1,4 +1,4 @@
-﻿// This Source Code Form is subject to the terms of the Mozilla Public
+// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 namespace ServiceStack.Seq.RequestLogsFeature
@@ -32,7 +32,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         {
             // TODO add buffering to logging for perf
             // scope to force json camel casing off
-            using (JsConfig.With(emitCamelCaseNames: false))
+            using (JsConfig.With(new Config { TextCase = TextCase.Default }))
             {
                 eventsUri.PostJsonToUrlAsync(
                     new SeqLogRequest(entry),
@@ -257,5 +257,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
 
         public bool LimitToServiceRequests { get; set; }
         public Func<IRequest, bool> SkipLogging { get; set; }
+        public Action<IRequest, RequestLogEntry> RequestLogFilter { get; set; }
+        public Func<DateTime> CurrentDateFn { get; set; } = () => DateTime.UtcNow;
     }
 }
