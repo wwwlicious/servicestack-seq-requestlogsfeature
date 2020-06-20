@@ -25,6 +25,7 @@ namespace ConsoleDemo
 
         public Type[] HideRequestBodyForRequestDtoTypes { get; set; }
         public Action<IRequest, RequestLogEntry> RequestLogFilter { get; set; }
+        public Func<object, bool> IgnoreFilter { get; set; }
         public Func<DateTime> CurrentDateFn { get; set; } = () => DateTime.UtcNow;
 
         public void Log(IRequest request, object requestDto, object response, TimeSpan elapsed)
