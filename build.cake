@@ -1,10 +1,8 @@
-#addin nuget:?package=Cake.Incubator&version=2.0.2
-//#addin nuget:?package=Cake.AppVeyor&version=3.0.0
-
-#tool nuget:?package=GitVersion.CommandLine&version=4.0.0-beta0012
-#tool nuget:?package=xunit.runner.console&version=2.3.1
-#tool nuget:?package=gitreleasemanager&version=0.7.0
-
+#tool "nuget:?package=xunit.runner.console&version=2.4.1"
+#tool "nuget:?package=GitVersion.CommandLine&version=5.3.6"
+#tool "nuget:?package=gitreleasemanager&version=0.11.0"
+#tool "nuget:?package=gitlink&version=2.4.0"
+#addin "nuget:?package=Cake.Incubator&version=5.1.0"
 
 ///////////////////////////////////////////////////////////////////////////////
 // GLOBAL VARIABLES
