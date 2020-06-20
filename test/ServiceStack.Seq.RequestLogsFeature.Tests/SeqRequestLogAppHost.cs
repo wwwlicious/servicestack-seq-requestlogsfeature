@@ -13,7 +13,7 @@ namespace ServiceStack.Seq.RequestLogsFeature.Tests
 
     public class SeqRequestLogAppHost : AppSelfHostBase
     {
-        public readonly string BaseUrl = "http://localhost:1337/";
+        public readonly string BaseUrl = "http://localhost:2121/";
         private const string Url = "http://8.8.8.8:1234";
         public readonly IAppSettings Settings = Fake<IAppSettings>();
 

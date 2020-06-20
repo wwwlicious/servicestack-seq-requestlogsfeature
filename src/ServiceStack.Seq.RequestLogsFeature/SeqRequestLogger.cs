@@ -213,8 +213,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
                     requestLogEntry.Properties.Add("StackTrace", errorResponse.StackTrace);
                 }
 
-                var ex = response as Exception;
-                if (ex != null)
+                if (response is Exception ex)
                 {
                     if (ex.InnerException != null)
                     {
@@ -258,6 +257,7 @@ namespace ServiceStack.Seq.RequestLogsFeature
         public bool LimitToServiceRequests { get; set; }
         public Func<IRequest, bool> SkipLogging { get; set; }
         public Action<IRequest, RequestLogEntry> RequestLogFilter { get; set; }
+        public Func<object, bool> IgnoreFilter { get; set; }
         public Func<DateTime> CurrentDateFn { get; set; } = () => DateTime.UtcNow;
     }
 }
